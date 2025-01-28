@@ -1,51 +1,48 @@
 import { DataTypes } from "sequelize";
 import db from "../database/connection";
 import Restaurant from "./restaurant";
+import Order from "./order";
+import User from "./user";
 
-
-const User = db.define(
-  "User",
+const DeliveryOrder = db.define(
+  "DeliveryOrder",
   {
-    id_user: {
+    id_order: {
       type: DataTypes.INTEGER,
       primaryKey: true,
       autoIncrement: true,
+      references: {
+        model: Order,
+        key: "id_order",
+      },
     },
-    id_restaurant: {
+    address: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    date: {
+      type: DataTypes.DATE,
+      allowNull: false,
+    },
+    id_user: {
       type: DataTypes.INTEGER,
       allowNull: true,
       references: {
-        model: Restaurant,
-        key: "id_restaurant",
+        model: User,
+        key: "id_user",
       },
     },
-    username: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-    password: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-    admin: {
-      type: DataTypes.BOOLEAN,
-      allowNull: true,
-    },
-    points: {
+    id_worker: {
       type: DataTypes.INTEGER,
       allowNull: true,
+      references: {
+        model: User,
+        key: "id_user",
+      },
     },
-    image: {
+    phone: {
       type: DataTypes.STRING,
-      allowNull: true,
-    },
-    pin: {
-      type: DataTypes.INTEGER,
-      allowNull: true,
-    },
-    tag: {
-      type: DataTypes.STRING,
-      allowNull: true,
+      allowNull: false,
     },
   },
   {
@@ -53,6 +50,4 @@ const User = db.define(
   }
 );
 
-
-
-export default User;
+export default DeliveryOrder;

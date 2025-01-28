@@ -2,50 +2,33 @@ import { DataTypes } from "sequelize";
 import db from "../database/connection";
 import Restaurant from "./restaurant";
 
-
-const User = db.define(
-  "User",
+const Inventory = db.define(
+  "Inventory",
   {
-    id_user: {
+    id_ingredient: {
       type: DataTypes.INTEGER,
       primaryKey: true,
       autoIncrement: true,
     },
     id_restaurant: {
       type: DataTypes.INTEGER,
-      allowNull: true,
+      allowNull: false,
       references: {
         model: Restaurant,
         key: "id_restaurant",
       },
     },
-    username: {
+    name: {
       type: DataTypes.STRING,
       allowNull: false,
     },
-    password: {
+    category: {
       type: DataTypes.STRING,
       allowNull: false,
     },
-    admin: {
-      type: DataTypes.BOOLEAN,
-      allowNull: true,
-    },
-    points: {
+    quantity: {
       type: DataTypes.INTEGER,
-      allowNull: true,
-    },
-    image: {
-      type: DataTypes.STRING,
-      allowNull: true,
-    },
-    pin: {
-      type: DataTypes.INTEGER,
-      allowNull: true,
-    },
-    tag: {
-      type: DataTypes.STRING,
-      allowNull: true,
+      allowNull: false,
     },
   },
   {
@@ -54,5 +37,4 @@ const User = db.define(
 );
 
 
-
-export default User;
+export default Inventory;

@@ -2,57 +2,46 @@ import { DataTypes } from "sequelize";
 import db from "../database/connection";
 import Restaurant from "./restaurant";
 
-
-const User = db.define(
-  "User",
+const Product = db.define(
+  "Product",
   {
-    id_user: {
+    id_product: {
       type: DataTypes.INTEGER,
       primaryKey: true,
       autoIncrement: true,
     },
     id_restaurant: {
       type: DataTypes.INTEGER,
-      allowNull: true,
+      allowNull: false,
       references: {
         model: Restaurant,
         key: "id_restaurant",
       },
     },
-    username: {
+    name: {
       type: DataTypes.STRING,
       allowNull: false,
     },
-    password: {
+    description: {
       type: DataTypes.STRING,
       allowNull: false,
     },
-    admin: {
-      type: DataTypes.BOOLEAN,
-      allowNull: true,
-    },
-    points: {
-      type: DataTypes.INTEGER,
-      allowNull: true,
+    price: {
+      type: DataTypes.FLOAT,
+      allowNull: false,
     },
     image: {
       type: DataTypes.STRING,
-      allowNull: true,
+      allowNull: false,
     },
-    pin: {
-      type: DataTypes.INTEGER,
-      allowNull: true,
-    },
-    tag: {
+    category: {
       type: DataTypes.STRING,
-      allowNull: true,
-    },
+      allowNull: false,
+    }
   },
   {
     timestamps: false,
   }
 );
 
-
-
-export default User;
+export default Product;

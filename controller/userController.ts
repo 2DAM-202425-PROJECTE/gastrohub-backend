@@ -1,54 +1,93 @@
 import { NextFunction, Request, Response } from "express";
 import User from "../models/user";
 
-export const getUsuarios = async (req: Request, res: Response) => {
-  try {
-    const usuarios = await User.findAll();
+export const getUsers = async (req: Request, res: Response) => {
+  const { id } = req.params;
 
-    res.json(usuarios);
+  try {
+    const users = await User.findAll({
+      where: {
+        id_restaurant: id,
+      },
+    });
+
+    res.json(users);
   } catch (error) {
     console.log(error);
     res.status(500).json({
-      msg: "Hable con el administrador",
+      msg: "Talk to the administrator",
     });
   }
 };
 
-export const getUsuario = async (req: Request, res: Response) => {
+export const getUser = async (req: Request, res: Response) => {
   const { id } = req.params;
 
   try {
-    const usuario = await User.findByPk(id);
-    if (usuario) {
-      res.json(usuario);
+    const user = await User.findByPk(id);
+    if (user) {
+      res.json(user);
     } else {
       res.status(404).json({
-        msg: `No existe un usuario con el id ${id}`,
+        msg: `There is no user with the id ${id}`,
       });
     }
   } catch (error) {
     console.log(error);
     res.status(500).json({
-      msg: "Hable con el administrador",
+      msg: "Talk to the administrator",
     });
   }
 };
 
-export const postUsuario = async (req: Request, res: Response) => {
+export const loginUser = async (req: Request, res: Response) => {
   const { body } = req;
+  const { username, password } = body;
 
   try {
-    const user = await User.create(body);
+    const user = await User.findOne({
+      where: {
+        username,
+        password,
+      },
+    });
     res.json(user);
   } catch (error) {
     console.log(error);
     res.status(500).json({
-      msg: "Hable con el administrador",
+      msg: "Talk to the administrator",
     });
   }
 };
 
-export const putUsuario = async (req: Request, res: Response): Promise<any> => {
+export const createUser = async (req: Request, res: Response): Promise<any> => {
+  const { body } = req;
+  const { username, password } = body;
+
+  try {
+    const user = await User.findOne({
+      where: {
+        username,
+        password,
+      },
+    });
+    if (user) {
+      return res.status(400).json({
+        msg: "The user already exists",
+      });
+    } else {
+      const newUser = await User.create(body);
+      res.json(newUser);
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      msg: "Talk to the administrator",
+    });
+  }
+};
+
+export const updateUser = async (req: Request, res: Response): Promise<any> => {
   const { id } = req.params;
   const { body } = req;
 
@@ -56,7 +95,7 @@ export const putUsuario = async (req: Request, res: Response): Promise<any> => {
     const user = await User.findByPk(id);
     if (!user) {
       return res.status(404).json({
-        msg: `No existe un usuario con el id ${id}`,
+        msg: `There is no user with the id ${id}`,
       });
     } else {
       await user.update(body);
@@ -66,22 +105,19 @@ export const putUsuario = async (req: Request, res: Response): Promise<any> => {
   } catch (error) {
     console.log(error);
     res.status(500).json({
-      msg: "Hable con el administrador",
+      msg: "Talk to the administrator",
     });
   }
 };
 
-export const deleteUsuario = async (
-  req: Request,
-  res: Response
-): Promise<any> => {
+export const deleteUser = async (req: Request, res: Response): Promise<any> => {
   const { id } = req.params;
 
   try {
     const user = await User.findByPk(id);
     if (!user) {
       return res.status(404).json({
-        msg: `No existe un usuario con el id ${id}`,
+        msg: `There is no user with the id ${id}`,
       });
     } else {
       await user.destroy();
@@ -91,7 +127,7 @@ export const deleteUsuario = async (
   } catch (error) {
     console.log(error);
     res.status(500).json({
-      msg: "Hable con el administrador",
+      msg: "Talk to the administrator",
     });
   }
 };
