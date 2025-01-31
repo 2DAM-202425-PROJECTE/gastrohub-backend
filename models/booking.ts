@@ -27,6 +27,10 @@ const Booking = db.define(
       type: DataTypes.DATE,
       allowNull: false,
     },
+    name: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    }
   },
   {
     timestamps: false,

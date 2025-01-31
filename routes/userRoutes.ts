@@ -1,9 +1,10 @@
 import { Router } from "express";
-import { createUser, deleteUser, getUser, getUsers, loginUser, updateUser } from "../controller/userController";
+import { createUser, deleteUser, getUser, getUserbyUsername, getUsers, loginUser, updateUser } from "../controller/userController";
 
 
 const router = Router();
 
+router.get("/getUserbyUsername/:username", getUserbyUsername);
 router.get("/getRestaurantWorkers/:id", getUsers);
 router.get("/profile/:id", getUser);
 router.post("/login", loginUser)

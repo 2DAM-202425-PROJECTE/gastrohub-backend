@@ -1,5 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import User from "../models/user";
+import { where } from "sequelize";
 
 export const getUsers = async (req: Request, res: Response) => {
   const { id } = req.params;
@@ -129,6 +130,30 @@ export const deleteUser = async (req: Request, res: Response): Promise<any> => {
       await user.destroy();
 
       res.json(user);
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      msg: "Talk to the administrator",
+    });
+  }
+};
+
+export const getUserbyUsername = async (req: Request, res: Response) => {
+  const { username } = req.params;
+
+  try {
+    const users = await User.findOne({
+      where: {
+        username,
+      },
+    });
+    if (users) {
+      res.json(users);
+    } else {
+      res.status(404).json({
+        msg: `There is no user with the username ${username}`,
+      });
     }
   } catch (error) {
     console.log(error);
