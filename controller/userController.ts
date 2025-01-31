@@ -40,19 +40,26 @@ export const getUser = async (req: Request, res: Response) => {
   }
 };
 
-export const loginUser = async (req: Request, res: Response) => {
+export const loginUser = async (req: Request, res: Response): Promise<any> => {
   const { body } = req;
   const { username, password } = body;
 
   try {
     const user = await User.findOne({
       where: {
-        username,
-        password,
+        username: username,
+        password: password,
       },
     });
-    res.json(user);
+    if (!user) {
+      return res.status(400).json({
+        msg: "User or password incorrect",
+      });
+    } else {
+      res.json(user);
+    }
   } catch (error) {
+    console.log(body);
     console.log(error);
     res.status(500).json({
       msg: "Talk to the administrator",
@@ -68,7 +75,6 @@ export const createUser = async (req: Request, res: Response): Promise<any> => {
     const user = await User.findOne({
       where: {
         username,
-        password,
       },
     });
     if (user) {

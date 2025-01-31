@@ -10,21 +10,21 @@ const setDefaultData = async () => {
       details: "This is a test license",
       start_date: new Date(),
       end_date: new Date().setFullYear(new Date().getFullYear() + 1),
-    })
+    });
     Restaurant.create({
       name: "Kebab La Rapita",
       address: "Carrer de la Rapita",
-      distribution: {},
       capacity: 100,
       id_license: 1,
-    })
+    });
     User.create({
       username: "admin",
       password: "admin",
       admin: true,
       id_restaurant: 1,
       pin: "12345",
-    })
+      name: "Admin",
+    });
   } catch (error: any) {
     console.log(error);
     throw new Error(error);

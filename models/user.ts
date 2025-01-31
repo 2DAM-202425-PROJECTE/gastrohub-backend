@@ -47,6 +47,10 @@ const User = db.define(
       type: DataTypes.STRING,
       allowNull: true,
     },
+    name: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
   },
   {
     timestamps: false,

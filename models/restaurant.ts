@@ -25,7 +25,7 @@ const Restaurant = db.define(
     },
     distribution: {
       type: DataTypes.JSON,
-      allowNull: false,
+      allowNull: true,
     },
     capacity: {
       type: DataTypes.INTEGER,
