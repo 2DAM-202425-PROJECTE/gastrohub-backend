@@ -1,6 +1,8 @@
 import { DataTypes } from "sequelize";
 import db from "../database/connection";
 import Restaurant from "./restaurant";
+import Inventory from "./inventory";
+import Product from "./product";
 
 const ProductIngredient = db.define(
   "ProductIngredient",
@@ -9,16 +11,16 @@ const ProductIngredient = db.define(
       type: DataTypes.INTEGER,
       allowNull: false,
       references: {
-        model: Restaurant,
-        key: "id_restaurant",
+        model: Inventory,
+        key: "id_ingredient",
       },
     },
     id_product: {
       type: DataTypes.INTEGER,
       allowNull: false,
       references: {
-        model: Restaurant,
-        key: "id_restaurant",
+        model: Product,
+        key: "id_product",
       },
     },
     quantity: {
