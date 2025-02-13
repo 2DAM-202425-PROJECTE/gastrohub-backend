@@ -19,6 +19,10 @@ const User = db.define(
         key: "id_restaurant",
       },
     },
+    email: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
     username: {
       type: DataTypes.STRING,
       allowNull: false,
