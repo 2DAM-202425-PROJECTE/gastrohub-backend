@@ -70,15 +70,20 @@ export const loginUser = async (req: Request, res: Response): Promise<any> => {
 
 export const createUser = async (req: Request, res: Response): Promise<any> => {
   const { body } = req;
-  const { username, password } = body;
+  const { username, email} = body;
 
   try {
-    const user = await User.findOne({
+    const userByUsername = await User.findOne({
       where: {
         username,
-      },
+      }
     });
-    if (user) {
+    const userByEmail = await User.findOne({
+      where: {
+        email,
+      }
+    });
+    if (userByUsername || userByEmail) {
       return res.status(400).json({
         msg: "The user already exists",
       });
