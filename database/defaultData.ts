@@ -2,6 +2,13 @@ import e from "express";
 import License from "../models/license";
 import Restaurant from "../models/restaurant";
 import User from "../models/user";
+import Inventory from "../models/inventory";
+import Product from "../models/product";
+import ProductIngredient from "../models/productIngredient";
+import Order from "../models/order";
+import OrderProduct from "../models/orderProduct";
+import Booking from "../models/booking";
+import DeliveryOrder from "../models/deliveryOrder";
 
 const setDefaultData = async () => {
   try {
@@ -24,6 +31,65 @@ const setDefaultData = async () => {
       id_restaurant: 1,
       pin: "12345",
       name: "Admin",
+      email: "test@gmail.com",
+    });
+    Inventory.create({
+      id_restaurant: 1,
+      name: "Tomato",
+      category: "Vegetables",
+      quantity: 10,
+    });
+    Inventory.create({
+      id_restaurant: 1,
+      name: "Chese",
+      category: "Fridge",
+      quantity: 10,
+    });
+    Product.create({
+      id_restaurant: 1,
+      name: "Kebab",
+      price: 5,
+      category: "Main",
+      image: "https://www.google.com",
+      description: "This is a kebab",
+    }).then((product) => {
+      ProductIngredient.create({
+        id_product: 1,
+        id_ingredient: 1,
+        quantity: 1,
+      });
+      ProductIngredient.create({
+        id_product: 1,
+        id_ingredient: 2,
+        quantity: 1,
+      });
+      Order.create({
+        id_restaurant: 1,
+        id_user: 1,
+        state: "Pending",
+      }).then((order) => {
+        OrderProduct.create({
+          id_order: 1,
+          id_product: 1,
+          quantity: 1,
+          state: "Pending",
+        });
+        DeliveryOrder.create({
+          id_order: 1,
+          address: "Carrer de la Rapita",
+          phone: "123456789",
+          date: new Date(),
+        });
+      });
+    });
+
+    Booking.create({
+      id_restaurant: 1,
+      id_user: 1,
+      date: new Date(),
+      name: "PEpe",
+      time: "13:00",
+      quantity: 2,
     });
   } catch (error: any) {
     console.log(error);
