@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from "express";
-import OrderProduct from "../models/user";
+import OrderProduct from "../models/orderProduct";
 
 export const getOrderProducts = async (req: Request, res: Response) => {
   const { id } = req.params;

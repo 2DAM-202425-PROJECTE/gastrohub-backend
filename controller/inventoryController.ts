@@ -20,6 +20,29 @@ export const getInventory = async (req: Request, res: Response) => {
   }
 };
 
+export const getOneElement = async (
+  req: Request,
+  res: Response
+): Promise<any> => {
+  const { id } = req.params;
+
+  try {
+    const inventory = await Inventory.findByPk(id);
+    if (!inventory) {
+      return res.status(404).json({
+        msg: `There is no inventory with the id ${id}`,
+      });
+    } else {
+      res.json(inventory);
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      msg: "Talk to the administrator",
+    });
+  }
+};
+
 export const createInventory = async (req: Request, res: Response) => {
   const { body } = req;
 
@@ -34,7 +57,10 @@ export const createInventory = async (req: Request, res: Response) => {
   }
 };
 
-export const updateInventory = async (req: Request, res: Response): Promise<any> => {
+export const updateInventory = async (
+  req: Request,
+  res: Response
+): Promise<any> => {
   const { id } = req.params;
   const { body } = req;
 
@@ -57,7 +83,10 @@ export const updateInventory = async (req: Request, res: Response): Promise<any>
   }
 };
 
-export const deleteInventory = async (req: Request, res: Response): Promise<any> => {
+export const deleteInventory = async (
+  req: Request,
+  res: Response
+): Promise<any> => {
   const { id } = req.params;
 
   try {

@@ -20,6 +20,26 @@ export const getProducts = async (req: Request, res: Response) => {
   }
 };
 
+export const getOneProduct = async (req: Request, res: Response): Promise<any> => {
+  const { id } = req.params;
+
+  try {
+    const product = await Product.findByPk(id);
+    if (!product) {
+      return res.status(404).json({
+        msg: `There is no product with the id ${id}`,
+      });
+    } else {
+      res.json(product);
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      msg: "Talk to the administrator",
+    });
+  }
+}
+
 export const createProduct = async (req: Request, res: Response) => {
   const { body } = req;
 

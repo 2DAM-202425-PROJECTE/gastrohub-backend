@@ -67,6 +67,7 @@ const setDefaultData = async () => {
         id_restaurant: 1,
         id_user: 1,
         state: "Pending",
+        table: "1",
       }).then((order) => {
         OrderProduct.create({
           id_order: 1,

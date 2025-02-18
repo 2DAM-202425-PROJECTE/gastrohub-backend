@@ -23,6 +23,10 @@ const Order = db.define(
       type: DataTypes.STRING,
       allowNull: false,
     },
+    table:{
+      type: DataTypes.STRING,
+      allowNull: false,
+    }
   },
   {
     timestamps: false,
