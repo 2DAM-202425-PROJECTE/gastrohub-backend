@@ -7,10 +7,17 @@ import User from "./user";
 const DeliveryOrder = db.define(
   "DeliveryOrder",
   {
+    id_restaurant: {
+      type: DataTypes.INTEGER,
+      primaryKey: false,
+      references: {
+        model: Restaurant,
+        key: "id_restaurant",
+      },
+    },
     id_order: {
       type: DataTypes.INTEGER,
       primaryKey: true,
-      autoIncrement: true,
       references: {
         model: Order,
         key: "id_order",
@@ -41,6 +48,10 @@ const DeliveryOrder = db.define(
       },
     },
     phone: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    name: {
       type: DataTypes.STRING,
       allowNull: false,
     },

@@ -80,6 +80,8 @@ const setDefaultData = async () => {
           address: "Carrer de la Rapita",
           phone: "123456789",
           date: new Date(),
+          name: "PEpe",
+          id_restaurant: 1,
         });
       });
     });
