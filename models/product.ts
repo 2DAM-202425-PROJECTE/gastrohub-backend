@@ -37,6 +37,10 @@ const Product = db.define(
     category: {
       type: DataTypes.STRING,
       allowNull: false,
+    },
+    kitchen: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
     }
   },
   {

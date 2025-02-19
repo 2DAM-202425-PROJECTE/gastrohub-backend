@@ -11,7 +11,7 @@ const License = db.define(
       autoIncrement: true,
     },
     license_type: {
-      type: DataTypes.STRING,
+      type: DataTypes.INTEGER,
       allowNull: false,
     },
     details: {

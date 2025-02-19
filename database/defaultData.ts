@@ -52,6 +52,7 @@ const setDefaultData = async () => {
       category: "Main",
       image: "https://www.google.com",
       description: "This is a kebab",
+      kitchen: true,
     }).then((product) => {
       ProductIngredient.create({
         id_product: 1,
@@ -74,14 +75,6 @@ const setDefaultData = async () => {
           id_product: 1,
           quantity: 1,
           state: "Pending",
-        });
-        DeliveryOrder.create({
-          id_order: 1,
-          address: "Carrer de la Rapita",
-          phone: "123456789",
-          date: new Date(),
-          name: "PEpe",
-          id_restaurant: 1,
         });
       });
     });
