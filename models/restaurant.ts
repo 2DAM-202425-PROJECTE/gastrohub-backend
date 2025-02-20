@@ -2,7 +2,6 @@ import { DataTypes } from "sequelize";
 import db from "../database/connection";
 import License from "./license";
 
-
 const Restaurant = db.define(
   "Restaurant",
   {
@@ -20,8 +19,20 @@ const Restaurant = db.define(
       allowNull: false,
     },
     logo: {
-      type: DataTypes.STRING,
+      type: DataTypes.BLOB,
       allowNull: true,
+      get() {
+        const logoBuffer = this.getDataValue("logo");
+        return logoBuffer ? logoBuffer.toString("base64") : null;
+      },
+      set(value) {
+        if (typeof value === "string") {
+          const bufferValue = Buffer.from(value, "base64");
+          this.setDataValue("logo", bufferValue);
+        } else {
+          this.setDataValue("logo", value);
+        }
+      },
     },
     distribution: {
       type: DataTypes.JSON,

@@ -30,9 +30,22 @@ const Product = db.define(
       type: DataTypes.FLOAT,
       allowNull: false,
     },
+
     image: {
-      type: DataTypes.STRING,
-      allowNull: false,
+      type: DataTypes.BLOB,
+      allowNull: true,
+      get() {
+        const imageBuffer = this.getDataValue("image");
+        return imageBuffer ? imageBuffer.toString("base64") : null;
+      },
+      set(value) {
+        if (typeof value === "string") {
+          const bufferValue = Buffer.from(value, "base64");
+          this.setDataValue("image", bufferValue);
+        } else {
+          this.setDataValue("image", value);
+        }
+      },
     },
     category: {
       type: DataTypes.STRING,
