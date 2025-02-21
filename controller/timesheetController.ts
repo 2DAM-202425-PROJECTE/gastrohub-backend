@@ -40,6 +40,31 @@ export const getTimesheet = async (req: Request, res: Response) => {
   }
 };
 
+export const getActiveTimesheet = async (req: Request, res: Response) => {
+  const { id } = req.params;
+  try {
+    const timesheet = await Timesheet.findOne({
+      where: {
+        id_user: id,
+        end_date: null,
+      },
+    });
+
+    if (timesheet) {
+      res.json(timesheet);
+    } else {
+      res.status(404).json({
+        msg: `There is no active timesheet for the user with the id ${id}`,
+      });
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      msg: "Talk to the administrator",
+    });
+  }
+};
+
 export const createTimesheet = async (req: Request, res: Response) => {
   const { body } = req;
 
@@ -54,7 +79,10 @@ export const createTimesheet = async (req: Request, res: Response) => {
   }
 };
 
-export const updateTimesheet = async (req: Request, res: Response): Promise<any> => {
+export const updateTimesheet = async (
+  req: Request,
+  res: Response
+): Promise<any> => {
   const { id } = req.params;
   const { body } = req;
 
@@ -77,7 +105,10 @@ export const updateTimesheet = async (req: Request, res: Response): Promise<any>
   }
 };
 
-export const deleteTimesheet = async (req: Request, res: Response): Promise<any> => {
+export const deleteTimesheet = async (
+  req: Request,
+  res: Response
+): Promise<any> => {
   const { id } = req.params;
 
   try {

@@ -34,7 +34,10 @@ export const createSchedule = async (req: Request, res: Response) => {
   }
 };
 
-export const updateSchedule = async (req: Request, res: Response): Promise<any> => {
+export const updateSchedule = async (
+  req: Request,
+  res: Response
+): Promise<any> => {
   const { id } = req.params;
   const { body } = req;
 
@@ -57,7 +60,10 @@ export const updateSchedule = async (req: Request, res: Response): Promise<any> 
   }
 };
 
-export const deleteSchedule = async (req: Request, res: Response): Promise<any> => {
+export const deleteSchedule = async (
+  req: Request,
+  res: Response
+): Promise<any> => {
   const { id } = req.params;
 
   try {

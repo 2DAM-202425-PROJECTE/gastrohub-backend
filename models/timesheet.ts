@@ -20,7 +20,7 @@ const Timesheet = db.define(
     },
     location: {
         type: DataTypes.STRING,
-        allowNull: false,
+        allowNull: true,
     },
     start_date: {
         type: DataTypes.DATE,

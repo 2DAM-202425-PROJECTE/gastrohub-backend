@@ -2,7 +2,6 @@ import { DataTypes } from "sequelize";
 import db from "../database/connection";
 import Restaurant from "./restaurant";
 
-
 const User = db.define(
   "User",
   {
@@ -40,8 +39,20 @@ const User = db.define(
       allowNull: true,
     },
     image: {
-      type: DataTypes.STRING,
+      type: DataTypes.BLOB,
       allowNull: true,
+      get() {
+        const logoBuffer = this.getDataValue("image");
+        return logoBuffer ? logoBuffer.toString("base64") : null;
+      },
+      set(value) {
+        if (typeof value === "string") {
+          const bufferValue = Buffer.from(value, "base64");
+          this.setDataValue("image", bufferValue);
+        } else {
+          this.setDataValue("image", value);
+        }
+      },
     },
     pin: {
       type: DataTypes.INTEGER,
@@ -60,7 +71,5 @@ const User = db.define(
     timestamps: false,
   }
 );
-
-
 
 export default User;

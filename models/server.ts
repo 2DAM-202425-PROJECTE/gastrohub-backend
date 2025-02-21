@@ -49,7 +49,7 @@ class Server {
     try {
       await db.authenticate();
       console.log("Database online");
-      await db.sync({ force: false });
+      await db.sync({ force: true });
       console.log("Base de datos conectada y tablas sincronizadas");
       await setDefaultData();
       console.log("Datos por defecto cargados");
