@@ -69,6 +69,7 @@ const setDefaultData = async () => {
             id_user: 1,
             state: "Pending",
             table: "1",
+            date: new Date(),
           }).then((order) => {
             OrderProduct.create({
               id_order: 1,
