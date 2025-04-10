@@ -175,3 +175,39 @@ export const createMultipleSchedules = async (
     });
   }
 };
+
+export const deleteSoonSchedulesWorker = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<any> => {
+  const { id } = req.params;
+
+  try {
+    const schedules = await Schedule.findAll({
+      where: {
+        id_user: id,
+      },
+    });
+
+    if (schedules) {
+      for (const schedule of schedules) {
+        const currentDate = new Date();
+        const startTime = new Date((schedule as any).start_time);
+
+        if (startTime <= currentDate) {
+          await schedule.destroy();
+        }
+      }
+    }
+
+    res.json({
+      msg: "Schedules deleted successfully",
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      msg: "Talk to the administrator",
+    });
+  }
+};
