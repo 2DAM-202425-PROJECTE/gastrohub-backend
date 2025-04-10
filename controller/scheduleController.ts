@@ -1,7 +1,9 @@
 import { NextFunction, Request, Response } from "express";
 import Schedule from "../models/schedule";
+import { getUsers } from "./userController";
+import User from "../models/user";
 
-export const getSchedules = async (req: Request, res: Response) => {
+export const getUserSchedules = async (req: Request, res: Response) => {
   const { id } = req.params;
 
   try {
@@ -204,6 +206,36 @@ export const deleteSoonSchedulesWorker = async (
     res.json({
       msg: "Schedules deleted successfully",
     });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      msg: "Talk to the administrator",
+    });
+  }
+};
+
+
+export const getRestaurantSchedules = async (
+  req: Request,
+  res: Response
+): Promise<any> => {
+  const { id } = req.params;
+
+  try {
+    
+    const users = await User.findAll({
+      where: {
+        id_restaurant: id,
+      },
+    });
+
+    const userIds = users.map((user) => user.get('id_user'));
+    const schedules = await Schedule.findAll({
+      where: {
+        id_user: userIds,
+      },
+    });
+    res.json(schedules);
   } catch (error) {
     console.log(error);
     res.status(500).json({
