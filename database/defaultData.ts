@@ -38,12 +38,16 @@ const setDefaultData = async () => {
           name: "Tomato",
           category: "Vegetables",
           quantity: 10,
+          gluten: false,
+          lactose: false,
         });
         Inventory.create({
           id_restaurant: 1,
           name: "Chese",
           category: "Fridge",
           quantity: 10,
+          gluten: false,
+          lactose: true,
         });
         Product.create({
           id_restaurant: 1,

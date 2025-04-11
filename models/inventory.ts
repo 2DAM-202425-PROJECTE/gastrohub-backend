@@ -30,11 +30,18 @@ const Inventory = db.define(
       type: DataTypes.INTEGER,
       allowNull: false,
     },
+    gluten: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+    },
+    lactose: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+    },
   },
   {
     timestamps: false,
   }
 );
-
 
 export default Inventory;
