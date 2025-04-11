@@ -93,17 +93,27 @@ export const deleteInventory = async (
     const inventory = await Inventory.findByPk(id);
     if (!inventory) {
       return res.status(404).json({
-        msg: `There is no inventory with the id ${id}`,
+        msg: `No existe un inventario con el id ${id}`,
       });
-    } else {
-      await inventory.destroy();
-
-      res.json(inventory);
     }
-  } catch (error) {
+
+    await inventory.destroy();
+    res.json(inventory);
+  } catch (error: any) {
     console.log(error);
+
+    // Verificamos si el error es por restricción de clave foránea
+    if (
+      error.name === "SequelizeForeignKeyConstraintError" ||
+      error.parent?.code === "ER_ROW_IS_REFERENCED_2" // Para MySQL
+    ) {
+      return res.status(400).json({
+        msg: "Este inventario está asociado a un menú. Arregla ese menú primero antes de eliminar.",
+      });
+    }
+
     res.status(500).json({
-      msg: "Talk to the administrator",
+      msg: "Habla con el administrador",
     });
   }
 };
