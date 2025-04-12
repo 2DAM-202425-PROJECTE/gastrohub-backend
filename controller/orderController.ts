@@ -1,5 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import Order from "../models/order";
+import OrderProduct from "../models/orderProduct";
 
 export const getOrders = async (req: Request, res: Response) => {
   const { id } = req.params;
@@ -54,17 +55,34 @@ export const createOrder = async (req: Request, res: Response) => {
   }
 };
 
-export const updateOrder = async (req: Request, res: Response): Promise<any> => {
+export const updateOrder = async (
+  req: Request,
+  res: Response
+): Promise<any> => {
   const { id } = req.params;
   const { body } = req;
 
   try {
-    const order = await Order.findByPk(id);
+    const order: any = await Order.findByPk(id);
     if (!order) {
       return res.status(404).json({
         msg: `There is no order with the id ${id}`,
       });
     } else {
+      if (body.payed != order.payed) {
+        if (body.payed == true) {
+          const orderProducts = await OrderProduct.findAll({
+            where: {
+              id_order: id,
+            },
+          });
+          orderProducts.forEach(async (orderProduct) => {
+            await orderProduct.update({
+              state: "Done",
+            });
+          });
+        }
+      }
       await order.update(body);
 
       res.json(order);
@@ -77,7 +95,10 @@ export const updateOrder = async (req: Request, res: Response): Promise<any> => 
   }
 };
 
-export const deleteOrder = async (req: Request, res: Response): Promise<any> => {
+export const deleteOrder = async (
+  req: Request,
+  res: Response
+): Promise<any> => {
   const { id } = req.params;
 
   try {

@@ -34,15 +34,23 @@ export const createOrderProduct = async (req: Request, res: Response) => {
   }
 };
 
-export const updateOrderProduct = async (req: Request, res: Response): Promise<any> => {
-  const { id } = req.params;
+export const updateOrderProduct = async (
+  req: Request,
+  res: Response
+): Promise<any> => {
+  const { id_order, id_product } = req.params;
   const { body } = req;
 
   try {
-    const product = await OrderProduct.findByPk(id);
+    const product = await OrderProduct.findOne({
+      where: {
+        id_order: id_order,
+        id_product: id_product,
+      },
+    });
     if (!product) {
       return res.status(404).json({
-        msg: `There is no user with the id ${id}`,
+        msg: `There is no user with the id ${id_order} and product ${id_product}`,
       });
     } else {
       await product.update(body);
@@ -57,7 +65,10 @@ export const updateOrderProduct = async (req: Request, res: Response): Promise<a
   }
 };
 
-export const deleteOrderProduct = async (req: Request, res: Response): Promise<any> => {
+export const deleteOrderProduct = async (
+  req: Request,
+  res: Response
+): Promise<any> => {
   const { id } = req.params;
 
   try {
