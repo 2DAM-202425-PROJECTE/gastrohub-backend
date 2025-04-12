@@ -74,11 +74,27 @@ const setDefaultData = async () => {
             state: "Pending",
             table: "1",
             date: new Date(),
+            payed: false,
           }).then((order) => {
             OrderProduct.create({
               id_order: 1,
               id_product: 1,
               quantity: 1,
+              state: "Pending",
+            });
+          });
+          Order.create({
+            id_restaurant: 1,
+            id_user: 1,
+            state: "Pending",
+            table: "1",
+            date: new Date(),
+            payed: true,
+          }).then((order) => {
+            OrderProduct.create({
+              id_order: 2,
+              id_product: 1,
+              quantity: 5,
               state: "Pending",
             });
           });

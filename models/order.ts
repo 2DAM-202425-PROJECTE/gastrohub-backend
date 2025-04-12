@@ -23,18 +23,21 @@ const Order = db.define(
       type: DataTypes.STRING,
       allowNull: false,
     },
-    table:{
+    table: {
       type: DataTypes.STRING,
       allowNull: false,
     },
     date: {
       type: DataTypes.DATE,
       allowNull: false,
-    }
+    },
+    payed: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+    },
   },
   {
     timestamps: false,
-
   }
 );
 
