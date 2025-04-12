@@ -1,5 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import OrderProduct from "../models/orderProduct";
+import Order from "../models/order";
 
 export const getOrderProducts = async (req: Request, res: Response) => {
   const { id } = req.params;
@@ -69,16 +70,34 @@ export const deleteOrderProduct = async (
   req: Request,
   res: Response
 ): Promise<any> => {
-  const { id } = req.params;
+  const { id_order, id_product } = req.params;
 
   try {
-    const product = await OrderProduct.findByPk(id);
+    const product = await OrderProduct.findOne({
+      where: {
+        id_order: id_order,
+        id_product: id_product,
+      },
+    });
     if (!product) {
       return res.status(404).json({
-        msg: `There is no product with the id ${id}`,
+        msg: `There is no product with the id ${id_product} in order ${id_order}`,
       });
     } else {
       await product.destroy();
+
+      const order = await OrderProduct.findAll({
+        where: {
+          id_order: id_order,
+        },
+      });
+      if (order.length == 0) {
+        await Order.destroy({
+          where: {
+            id_order: id_order,
+          },
+        });
+      }
 
       res.json(product);
     }
