@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import Product from "../models/product";
 import ProductIngredient from "../models/productIngredient";
+import Inventory from "../models/inventory";
 
 export const getProducts = async (req: Request, res: Response) => {
   const { id } = req.params;
@@ -11,8 +12,39 @@ export const getProducts = async (req: Request, res: Response) => {
         id_restaurant: id,
       },
     });
+    const productIngredient = await ProductIngredient.findAll({
+      where: {
+        id_product: products.map((product:any ) => product.id_product),
+      },
+    });
 
-    res.json(products);
+    const productIngredientMap = productIngredient.reduce(
+      (map: any, ingredient: any) => {
+        if (!map[ingredient.id_product]) {
+          map[ingredient.id_product] = [];
+        }
+        map[ingredient.id_product].push({
+          id_ingredient: ingredient.id_ingredient,
+          quantity: ingredient.quantity,
+        });
+        return map;
+      },
+      {}
+    );
+
+    const ingredients = await Inventory.findAll({
+      where: {
+        id_ingredient: productIngredient.map(
+          (ingredient: any) => ingredient.id_ingredient
+        ),
+      },
+    });
+    const ingredientMap = ingredients.reduce((map: any, ingredient: any) => {
+      map[ingredient.id_ingredient] = ingredient;
+      return map;
+    }, {});
+
+    res.json({ products, productIngredientMap, ingredientMap });
   } catch (error) {
     console.log(error);
     res.status(500).json({
