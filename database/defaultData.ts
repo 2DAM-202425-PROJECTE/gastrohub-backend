@@ -54,7 +54,7 @@ const setDefaultData = async () => {
           name: "Kebab",
           price: 5,
           category: "Main",
-          image: "https://www.google.com",
+          image: null,
           description: "This is a kebab",
           kitchen: true,
         }).then((product) => {
@@ -71,7 +71,6 @@ const setDefaultData = async () => {
           Order.create({
             id_restaurant: 1,
             id_user: 1,
-            state: "Pending",
             table: "1",
             date: new Date(),
             payed: false,
@@ -80,13 +79,12 @@ const setDefaultData = async () => {
               id_order: 1,
               id_product: 1,
               quantity: 1,
-              state: "Pending",
+              state: 1,
             });
           });
           Order.create({
             id_restaurant: 1,
             id_user: 1,
-            state: "Pending",
             table: "1",
             date: new Date(),
             payed: true,
@@ -95,7 +93,7 @@ const setDefaultData = async () => {
               id_order: 2,
               id_product: 1,
               quantity: 5,
-              state: "Pending",
+              state: 1,
             });
           });
         });

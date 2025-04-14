@@ -31,7 +31,7 @@ const OrderProduct = db.define(
       allowNull: true,
     },
     state: {
-      type: DataTypes.STRING,
+      type: DataTypes.INTEGER,
       allowNull: false,
     },
   },

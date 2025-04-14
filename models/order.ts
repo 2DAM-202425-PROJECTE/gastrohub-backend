@@ -19,10 +19,6 @@ const Order = db.define(
         key: "id_restaurant",
       },
     },
-    state: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
     table: {
       type: DataTypes.STRING,
       allowNull: false,
