@@ -1,13 +1,17 @@
 import { Router } from "express";
-import { createDeliveryOrder, deleteDeliveryOrder, getDeliveryOrder, getDeliveryOrders, updateDeliveryOrder } from "../controller/deliveryOrderController";
-
+import {
+  createDeliveryOrder,
+  deleteDeliveryOrder,
+  getDeliveryOrders,
+  updateDeliveryOrder,
+} from "../controller/deliveryOrderController";
+import { authenticateToken } from "../middlewares/authenticationToken";
 
 const router = Router();
 
-router.get("/getAll/:id", getDeliveryOrders);
-router.get("/get/:id", getDeliveryOrder);
-router.post("/create", createDeliveryOrder);
-router.put("/update/:id", updateDeliveryOrder);
-router.delete("/delete/:id", deleteDeliveryOrder);
+router.get("/getAll", authenticateToken, getDeliveryOrders);
+router.post("/create", authenticateToken, createDeliveryOrder);
+router.put("/update/:id", authenticateToken, updateDeliveryOrder);
+router.delete("/delete/:id", authenticateToken, deleteDeliveryOrder);
 
 export default router;

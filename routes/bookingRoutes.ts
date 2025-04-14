@@ -1,12 +1,15 @@
 import { Router } from "express";
-import { createBooking, deleteBooking, getBookings, updateBooking } from "../controller/bookingController";
-
+import {
+  createBooking,
+  deleteBooking,
+  getBookings,
+} from "../controller/bookingController";
+import { authenticateToken } from "../middlewares/authenticationToken";
 
 const router = Router();
 
-router.get("/getAll/:id", getBookings);
-router.post("/create", createBooking);
-router.put("/update/:id", updateBooking);
-router.delete("/delete/:id", deleteBooking);
+router.get("/getAll", authenticateToken, getBookings);
+router.post("/create", authenticateToken, createBooking);
+router.delete("/delete/:id", authenticateToken, deleteBooking);
 
 export default router;

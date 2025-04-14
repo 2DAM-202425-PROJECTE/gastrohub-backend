@@ -1,13 +1,16 @@
 import { NextFunction, Request, Response } from "express";
 import Inventory from "../models/inventory";
+import User from "../models/user";
 
 export const getInventory = async (req: Request, res: Response) => {
-  const { id } = req.params;
+  const { user } = req.body;
+  const { id_user } = user;
 
   try {
+    const user: any = await User.findByPk(id_user);
     const inventory = await Inventory.findAll({
       where: {
-        id_restaurant: id,
+        id_restaurant: user.id_restaurant,
       },
     });
 
@@ -25,6 +28,8 @@ export const getOneElement = async (
   res: Response
 ): Promise<any> => {
   const { id } = req.params;
+  const { user } = req.body;
+  const { id_user } = user;
 
   try {
     const inventory = await Inventory.findByPk(id);
@@ -45,6 +50,8 @@ export const getOneElement = async (
 
 export const createInventory = async (req: Request, res: Response) => {
   const { body } = req;
+  const { user } = req.body;
+  const { id_user } = user;
 
   try {
     const inventory = await Inventory.create(body);
@@ -63,6 +70,8 @@ export const updateInventory = async (
 ): Promise<any> => {
   const { id } = req.params;
   const { body } = req;
+  const { user } = req.body;
+  const { id_user } = user;
 
   try {
     const inventory = await Inventory.findByPk(id);
@@ -88,6 +97,8 @@ export const deleteInventory = async (
   res: Response
 ): Promise<any> => {
   const { id } = req.params;
+  const { user } = req.body;
+  const { id_user } = user;
 
   try {
     const inventory = await Inventory.findByPk(id);

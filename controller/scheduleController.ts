@@ -5,6 +5,8 @@ import User from "../models/user";
 
 export const getUserSchedules = async (req: Request, res: Response) => {
   const { id } = req.params;
+  const { user } = req.body;
+  const { id_user } = user;
 
   try {
     const schedules = await Schedule.findAll({
@@ -24,36 +26,12 @@ export const getUserSchedules = async (req: Request, res: Response) => {
 
 export const createSchedule = async (req: Request, res: Response) => {
   const { body } = req;
+  const { user } = req.body;
+  const { id_user } = user;
 
   try {
     const schedule = await Schedule.create(body);
     res.json(schedule);
-  } catch (error) {
-    console.log(error);
-    res.status(500).json({
-      msg: "Talk to the administrator",
-    });
-  }
-};
-
-export const updateSchedule = async (
-  req: Request,
-  res: Response
-): Promise<any> => {
-  const { id } = req.params;
-  const { body } = req;
-
-  try {
-    const schedule = await Schedule.findByPk(id);
-    if (!schedule) {
-      return res.status(404).json({
-        msg: `There is no schedule with the id ${id}`,
-      });
-    } else {
-      await schedule.update(body);
-
-      res.json(schedule);
-    }
   } catch (error) {
     console.log(error);
     res.status(500).json({
@@ -67,6 +45,8 @@ export const deleteSchedule = async (
   res: Response
 ): Promise<any> => {
   const { id } = req.params;
+  const { user } = req.body;
+  const { id_user } = user;
 
   try {
     const schedule = await Schedule.findByPk(id);
@@ -104,6 +84,8 @@ export const createMultipleSchedules = async (
     sunday,
     selected_users,
   } = body;
+  const { user } = req.body;
+  const { id_user } = user;
 
   const dayMap: Record<number, string> = {
     0: "sunday",
@@ -184,6 +166,8 @@ export const deleteSoonSchedulesWorker = async (
   next: NextFunction
 ): Promise<any> => {
   const { id } = req.params;
+  const { user } = req.body;
+  const { id_user } = user;
 
   try {
     const schedules = await Schedule.findAll({
@@ -214,22 +198,22 @@ export const deleteSoonSchedulesWorker = async (
   }
 };
 
-
 export const getRestaurantSchedules = async (
   req: Request,
   res: Response
 ): Promise<any> => {
-  const { id } = req.params;
+  const { user } = req.body;
+  const { id_user } = user;
 
   try {
-    
+    const user: any = await User.findByPk(id_user);
     const users = await User.findAll({
       where: {
-        id_restaurant: id,
+        id_restaurant: user!.id_restaurant,
       },
     });
 
-    const userIds = users.map((user) => user.get('id_user'));
+    const userIds = users.map((user) => user.get("id_user"));
     const schedules = await Schedule.findAll({
       where: {
         id_user: userIds,

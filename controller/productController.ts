@@ -2,19 +2,22 @@ import { NextFunction, Request, Response } from "express";
 import Product from "../models/product";
 import ProductIngredient from "../models/productIngredient";
 import Inventory from "../models/inventory";
+import User from "../models/user";
 
 export const getProducts = async (req: Request, res: Response) => {
-  const { id } = req.params;
+  const { user } = req.body;
+  const { id_user } = user;
 
   try {
+    const user: any = await User.findByPk(id_user);
     const products = await Product.findAll({
       where: {
-        id_restaurant: id,
+        id_restaurant: user!.id_restaurant,
       },
     });
     const productIngredient = await ProductIngredient.findAll({
       where: {
-        id_product: products.map((product:any ) => product.id_product),
+        id_product: products.map((product: any) => product.id_product),
       },
     });
 
@@ -53,31 +56,10 @@ export const getProducts = async (req: Request, res: Response) => {
   }
 };
 
-export const getOneProduct = async (
-  req: Request,
-  res: Response
-): Promise<any> => {
-  const { id } = req.params;
-
-  try {
-    const product = await Product.findByPk(id);
-    if (!product) {
-      return res.status(404).json({
-        msg: `There is no product with the id ${id}`,
-      });
-    } else {
-      res.json(product);
-    }
-  } catch (error) {
-    console.log(error);
-    res.status(500).json({
-      msg: "Talk to the administrator",
-    });
-  }
-};
-
 export const createProduct = async (req: Request, res: Response) => {
   const { body } = req;
+  const { user } = req.body;
+  const { id_user } = user;
 
   try {
     const product = await Product.create(body);
@@ -96,6 +78,8 @@ export const updateProduct = async (
 ): Promise<any> => {
   const { id } = req.params;
   const { product, ingredients } = req.body;
+  const { user } = req.body;
+  const { id_user } = user;
 
   try {
     const existingProduct = await Product.findByPk(id);
@@ -148,6 +132,8 @@ export const deleteProduct = async (
   res: Response
 ): Promise<any> => {
   const { id } = req.params;
+  const { user } = req.body;
+  const { id_user } = user;
 
   try {
     const product = await Product.findByPk(id);

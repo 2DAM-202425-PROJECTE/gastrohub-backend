@@ -3,22 +3,26 @@ import Order from "../models/order";
 import OrderProduct from "../models/orderProduct";
 import { Op } from "sequelize";
 import Product from "../models/product";
+import User from "../models/user";
 
 export const getAllActiveOrders = async (req: Request, res: Response) => {
-  const { id } = req.params;
+  const { user } = req.body;
+  const { id_user } = user;
   const twelveHoursAgo = new Date(Date.now() - 12 * 60 * 60 * 1000);
 
   try {
+    const user: any = await User.findByPk(id_user);
+
     const unpaidOrders = await Order.findAll({
       where: {
-        id_restaurant: id,
+        id_restaurant: user!.id_restaurant,
         payed: false,
       },
     });
 
     const recentOrders = await Order.findAll({
       where: {
-        id_restaurant: id,
+        id_restaurant: user!.id_restaurant,
         date: {
           [Op.gte]: twelveHoursAgo,
         },
@@ -75,28 +79,10 @@ export const getAllActiveOrders = async (req: Request, res: Response) => {
   }
 };
 
-export const getOrder = async (req: Request, res: Response) => {
-  const { id } = req.params;
-
-  try {
-    const order = await Order.findByPk(id);
-    if (order) {
-      res.json(order);
-    } else {
-      res.status(404).json({
-        msg: `There is no order with the id ${id}`,
-      });
-    }
-  } catch (error) {
-    console.log(error);
-    res.status(500).json({
-      msg: "Talk to the administrator",
-    });
-  }
-};
-
 export const createOrder = async (req: Request, res: Response) => {
   const { body } = req;
+  const { user } = req.body;
+  const { id_user } = user;
 
   try {
     const order = await Order.create(body);
@@ -115,6 +101,8 @@ export const updateOrder = async (
 ): Promise<any> => {
   const { id } = req.params;
   const { body } = req;
+  const { user } = req.body;
+  const { id_user } = user;
 
   try {
     const order: any = await Order.findByPk(id);
@@ -132,7 +120,7 @@ export const updateOrder = async (
           });
           orderProducts.forEach(async (orderProduct) => {
             await orderProduct.update({
-              state: "Done",
+              state: 1,
             });
           });
         }
@@ -154,6 +142,8 @@ export const deleteOrder = async (
   res: Response
 ): Promise<any> => {
   const { id } = req.params;
+  const { user } = req.body;
+  const { id_user } = user;
 
   try {
     const order = await Order.findByPk(id);
@@ -177,9 +167,11 @@ export const getAnalytics = async (
   req: Request,
   res: Response
 ): Promise<any> => {
-  const { id } = req.params;
+  const { user } = req.body;
+  const { id_user } = user;
 
   try {
+    const user: any = await User.findByPk(id_user);
     const now = new Date();
 
     // Calculamos las fechas para las 4 vistas: Día, Semana, Mes, Año
@@ -199,7 +191,7 @@ export const getAnalytics = async (
     // Consultamos las órdenes dentro de los últimos 12 meses
     const lastOrders = await Order.findAll({
       where: {
-        id_restaurant: id,
+        id_restaurant: user!.id_restaurant,
         date: {
           [Op.gte]: pastYear, // Solo las órdenes de hace un año o menos
         },

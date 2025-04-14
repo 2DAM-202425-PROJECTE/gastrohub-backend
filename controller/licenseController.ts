@@ -3,6 +3,8 @@ import License from "../models/license";
 
 export const getLicense = async (req: Request, res: Response) => {
   const { id } = req.params;
+  const { user } = req.body;
+  const { id_user } = user;
 
   try {
     const license = await License.findByPk(id);
@@ -23,6 +25,8 @@ export const getLicense = async (req: Request, res: Response) => {
 
 export const createLicence = async (req: Request, res: Response) => {
   const { body } = req;
+  const { user } = req.body;
+  const { id_user } = user;
 
   try {
     const license = await License.create(body);
@@ -41,6 +45,8 @@ export const updateLicense = async (
 ): Promise<any> => {
   const { id } = req.params;
   const { body } = req;
+  const { user } = req.body;
+  const { id_user } = user;
 
   try {
     const license = await License.findByPk(id);
@@ -66,6 +72,8 @@ export const deleteLicense = async (
   res: Response
 ): Promise<any> => {
   const { id } = req.params;
+  const { user } = req.body;
+  const { id_user } = user;
 
   try {
     const license = await License.findByPk(id);

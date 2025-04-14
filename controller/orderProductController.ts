@@ -2,27 +2,10 @@ import { NextFunction, Request, Response } from "express";
 import OrderProduct from "../models/orderProduct";
 import Order from "../models/order";
 
-export const getOrderProducts = async (req: Request, res: Response) => {
-  const { id } = req.params;
-
-  try {
-    const products = await OrderProduct.findAll({
-      where: {
-        id_order: id,
-      },
-    });
-
-    res.json(products);
-  } catch (error) {
-    console.log(error);
-    res.status(500).json({
-      msg: "Talk to the administrator",
-    });
-  }
-};
-
 export const createOrderProduct = async (req: Request, res: Response) => {
   const { body } = req;
+  const { user } = req.body;
+  const { id_user } = user;
 
   try {
     const product = await OrderProduct.create(body);
@@ -41,6 +24,8 @@ export const updateOrderProduct = async (
 ): Promise<any> => {
   const { id_order, id_product } = req.params;
   const { body } = req;
+  const { user } = req.body;
+  const { id_user } = user;
 
   try {
     const product = await OrderProduct.findOne({
@@ -71,6 +56,8 @@ export const deleteOrderProduct = async (
   res: Response
 ): Promise<any> => {
   const { id_order, id_product } = req.params;
+  const { user } = req.body;
+  const { id_user } = user;
 
   try {
     const product = await OrderProduct.findOne({

@@ -1,14 +1,17 @@
 import { Router } from "express";
-import { createTimesheet, deleteTimesheet, getActiveTimesheet, getTimesheet, getTimesheets, updateTimesheet } from "../controller/timesheetController";
-
+import {
+  createTimesheet,
+  getActiveTimesheet,
+  getTimesheets,
+  updateTimesheet,
+} from "../controller/timesheetController";
+import { authenticateToken } from "../middlewares/authenticationToken";
 
 const router = Router();
 
-router.get("/getAll/:id", getTimesheets);
-router.get("/get/:id", getTimesheet);
-router.post("/create", createTimesheet);
-router.put("/update/:id", updateTimesheet);
-router.delete("/delete/:id", deleteTimesheet);
-router.get("/getActiveTimesheet/:id", getActiveTimesheet);
+router.get("/getAll/:id", authenticateToken, getTimesheets);
+router.post("/create", authenticateToken, createTimesheet);
+router.put("/update/:id", authenticateToken, updateTimesheet);
+router.get("/getActiveTimesheet/:id", authenticateToken, getActiveTimesheet);
 
 export default router;

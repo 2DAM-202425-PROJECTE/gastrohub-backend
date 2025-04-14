@@ -3,6 +3,8 @@ import Timesheet from "../models/timesheet";
 
 export const getTimesheets = async (req: Request, res: Response) => {
   const { id } = req.params;
+  const { user } = req.body;
+  const { id_user } = user;
 
   try {
     const timesheets = await Timesheet.findAll({
@@ -20,56 +22,12 @@ export const getTimesheets = async (req: Request, res: Response) => {
   }
 };
 
-export const getTimesheet = async (req: Request, res: Response) => {
-  const { id } = req.params;
-
-  try {
-    const timesheet = await Timesheet.findByPk(id);
-    if (timesheet) {
-      res.json(timesheet);
-    } else {
-      res.status(404).json({
-        msg: `There is no timesheet with the id ${id}`,
-      });
-    }
-  } catch (error) {
-    console.log(error);
-    res.status(500).json({
-      msg: "Talk to the administrator",
-    });
-  }
-};
-
-export const getActiveTimesheet = async (req: Request, res: Response) => {
-  const { id } = req.params;
-  try {
-    const timesheet = await Timesheet.findOne({
-      where: {
-        id_user: id,
-        end_date: null,
-      },
-    });
-
-    if (timesheet) {
-      res.json(timesheet);
-    } else {
-      res.status(404).json({
-        msg: `There is no active timesheet for the user with the id ${id}`,
-      });
-    }
-  } catch (error) {
-    console.log(error);
-    res.status(500).json({
-      msg: "Talk to the administrator",
-    });
-  }
-};
-
 export const createTimesheet = async (req: Request, res: Response) => {
-  const { body } = req;
+  const { user } = req.body;
+  const { id_user } = user;
 
   try {
-    const timesheet = await Timesheet.create(body);
+    const timesheet = await Timesheet.create(req.body);
     res.json(timesheet);
   } catch (error) {
     console.log(error);
@@ -84,7 +42,8 @@ export const updateTimesheet = async (
   res: Response
 ): Promise<any> => {
   const { id } = req.params;
-  const { body } = req;
+  const { user } = req.body;
+  const { id_user } = user;
 
   try {
     const timesheet = await Timesheet.findByPk(id);
@@ -93,7 +52,7 @@ export const updateTimesheet = async (
         msg: `There is no timesheet with the id ${id}`,
       });
     } else {
-      await timesheet.update(body);
+      await timesheet.update(req.body);
 
       res.json(timesheet);
     }
@@ -105,22 +64,25 @@ export const updateTimesheet = async (
   }
 };
 
-export const deleteTimesheet = async (
-  req: Request,
-  res: Response
-): Promise<any> => {
+export const getActiveTimesheet = async (req: Request, res: Response) => {
   const { id } = req.params;
+  const { user } = req.body;
+  const { id_user } = user;
 
   try {
-    const timesheet = await Timesheet.findByPk(id);
-    if (!timesheet) {
-      return res.status(404).json({
-        msg: `There is no timesheet with the id ${id}`,
-      });
-    } else {
-      await timesheet.destroy();
+    const timesheet = await Timesheet.findOne({
+      where: {
+        id_user: id,
+        end_date: null,
+      },
+    });
 
+    if (timesheet) {
       res.json(timesheet);
+    } else {
+      res.json({
+        no_found: "No active timesheet found",
+      });
     }
   } catch (error) {
     console.log(error);

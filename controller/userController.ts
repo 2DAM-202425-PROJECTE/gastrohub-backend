@@ -1,18 +1,33 @@
-import { NextFunction, Request, Response } from "express";
+import { Request, Response } from "express";
 import User from "../models/user";
-import { where } from "sequelize";
+import { generateToken } from "../services/token_service";
 
 export const getUsers = async (req: Request, res: Response) => {
-  const { id } = req.params;
+  const { user } = req.body;
+  const { id_user } = user;
 
   try {
+    const user: any = await User.findByPk(id_user);
     const users = await User.findAll({
       where: {
-        id_restaurant: id,
+        id_restaurant: user!.id_restaurant,
       },
     });
 
-    res.json(users);
+    const toSend = users.map((user: any) => {
+      return {
+        id_user: user.id_user,
+        username: user.username,
+        email: user.email,
+        admin: user.admin,
+        image: user.image,
+        tag: user.tag,
+        name: user.name,
+        id_restaurant: user.id_restaurant,
+      };
+    });
+
+    res.json(toSend);
   } catch (error) {
     console.log(error);
     res.status(500).json({
@@ -22,15 +37,53 @@ export const getUsers = async (req: Request, res: Response) => {
 };
 
 export const getUser = async (req: Request, res: Response) => {
-  const { id } = req.params;
+  const { user } = req.body;
+  const { id_user, username } = user;
 
   try {
-    const user = await User.findByPk(id);
+    const user: any = await User.findByPk(id_user);
     if (user) {
-      res.json(user);
+      const toSend = {
+        id_user: user.id_user,
+        username: user.username,
+        email: user.email,
+        admin: user.admin,
+        image: user.image,
+        tag: user.tag,
+        name: user.name,
+        id_restaurant: user.id_restaurant,
+      };
+      res.json(toSend);
     } else {
       res.status(404).json({
-        msg: `There is no user with the id ${id}`,
+        msg: `There is no user with the id ${id_user}`,
+      });
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      msg: "Talk to the administrator",
+    });
+  }
+};
+
+export const pinCheck = async (req: Request, res: Response) => {
+  const { user, pin } = req.body;
+  const { id_user, username } = user;
+
+  try {
+    const user: any = await User.findByPk(id_user);
+    if (user) {
+      if (user.pin === pin) {
+        res.json({ correct: true });
+      } else {
+        res.status(400).json({
+          msg: "Pin incorrect",
+        });
+      }
+    } else {
+      res.status(404).json({
+        msg: `There is no user with the id ${id_user}`,
       });
     }
   } catch (error) {
@@ -46,7 +99,7 @@ export const loginUser = async (req: Request, res: Response): Promise<any> => {
   const { username, password } = body;
 
   try {
-    const user = await User.findOne({
+    const user: any = await User.findOne({
       where: {
         username: username,
         password: password,
@@ -57,7 +110,11 @@ export const loginUser = async (req: Request, res: Response): Promise<any> => {
         msg: "User or password incorrect",
       });
     } else {
-      res.json(user);
+      const token = generateToken({
+        id_user: user.id_user,
+        username: user.username,
+      });
+      res.json({ token });
     }
   } catch (error) {
     console.log(body);
@@ -68,28 +125,59 @@ export const loginUser = async (req: Request, res: Response): Promise<any> => {
   }
 };
 
+export const loginUserByToken = async (
+  req: Request,
+  res: Response
+): Promise<any> => {
+  const { user } = req.body;
+  const { id_user, username } = user;
+  try {
+    const user: any = await User.findOne({
+      where: {
+        id_user,
+        username,
+      },
+    });
+    if (!user) {
+      return res.status(400).json({
+        msg: "User or password incorrect",
+      });
+    } else {
+      res.json({ loggedUser: true });
+    }
+  } catch (error) {
+    res.status(500).json({
+      msg: "Talk to the administrator",
+    });
+  }
+};
+
 export const createUser = async (req: Request, res: Response): Promise<any> => {
   const { body } = req;
-  const { username, email} = body;
+  const { username, email, password } = body;
 
   try {
     const userByUsername = await User.findOne({
       where: {
         username,
-      }
+      },
     });
     const userByEmail = await User.findOne({
       where: {
         email,
-      }
+      },
     });
     if (userByUsername || userByEmail) {
       return res.status(400).json({
         msg: "The user already exists",
       });
     } else {
-      const newUser = await User.create(body);
-      res.json(newUser);
+      const newUser: any = await User.create(body);
+      const token = generateToken({
+        id_user: newUser.id_user,
+        username: newUser.username,
+      });
+      res.json({ token });
     }
   } catch (error) {
     console.log(error);
@@ -100,39 +188,18 @@ export const createUser = async (req: Request, res: Response): Promise<any> => {
 };
 
 export const updateUser = async (req: Request, res: Response): Promise<any> => {
-  const { id } = req.params;
+  const { user } = req.body;
+  const { id_user } = user;
   const { body } = req;
 
   try {
-    const user = await User.findByPk(id);
+    const user = await User.findByPk(id_user);
     if (!user) {
       return res.status(404).json({
-        msg: `There is no user with the id ${id}`,
+        msg: `There is no user with the id ${id_user}`,
       });
     } else {
       await user.update(body);
-
-      res.json(user);
-    }
-  } catch (error) {
-    console.log(error);
-    res.status(500).json({
-      msg: "Talk to the administrator",
-    });
-  }
-};
-
-export const deleteUser = async (req: Request, res: Response): Promise<any> => {
-  const { id } = req.params;
-
-  try {
-    const user = await User.findByPk(id);
-    if (!user) {
-      return res.status(404).json({
-        msg: `There is no user with the id ${id}`,
-      });
-    } else {
-      await user.destroy();
 
       res.json(user);
     }
@@ -148,13 +215,25 @@ export const getUserbyUsername = async (req: Request, res: Response) => {
   const { username } = req.params;
 
   try {
-    const users = await User.findOne({
+    const users: any = await User.findOne({
       where: {
         username,
       },
     });
     if (users) {
-      res.json(users);
+      const toSend = users.map((user: any) => {
+        return {
+          id_user: user.id_user,
+          username: user.username,
+          email: user.email,
+          admin: user.admin,
+          image: user.image,
+          tag: user.tag,
+          name: user.name,
+          id_restaurant: user.id_restaurant,
+        };
+      });
+      res.json(toSend);
     } else {
       res.status(404).json({
         msg: `There is no user with the username ${username}`,

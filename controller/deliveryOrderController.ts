@@ -1,13 +1,16 @@
 import { NextFunction, Request, Response } from "express";
 import DeliveryOrder from "../models/deliveryOrder";
+import User from "../models/user";
 
 export const getDeliveryOrders = async (req: Request, res: Response) => {
-  const { id } = req.params;
+  const { user } = req.body;
+  const { id_user } = user;
 
   try {
+    const user: any = await User.findByPk(id_user);
     const deliveryOrders = await DeliveryOrder.findAll({
       where: {
-        id_restaurant: id,
+        id_restaurant: user.id_restaurant,
       },
     });
 
@@ -20,28 +23,10 @@ export const getDeliveryOrders = async (req: Request, res: Response) => {
   }
 };
 
-export const getDeliveryOrder = async (req: Request, res: Response) => {
-  const { id } = req.params;
-
-  try {
-    const order = await DeliveryOrder.findByPk(id);
-    if (order) {
-      res.json(order);
-    } else {
-      res.status(404).json({
-        msg: `There is no order with the id ${id}`,
-      });
-    }
-  } catch (error) {
-    console.log(error);
-    res.status(500).json({
-      msg: "Talk to the administrator",
-    });
-  }
-};
-
 export const createDeliveryOrder = async (req: Request, res: Response) => {
   const { body } = req;
+  const { user } = req.body;
+  const { id_user } = user;
 
   try {
     const deliveryOrders = await DeliveryOrder.create(body);
@@ -54,9 +39,14 @@ export const createDeliveryOrder = async (req: Request, res: Response) => {
   }
 };
 
-export const updateDeliveryOrder = async (req: Request, res: Response): Promise<any> => {
+export const updateDeliveryOrder = async (
+  req: Request,
+  res: Response
+): Promise<any> => {
   const { id } = req.params;
   const { body } = req;
+  const { user } = req.body;
+  const { id_user } = user;
 
   try {
     const deliveryOrders = await DeliveryOrder.findByPk(id);
@@ -77,8 +67,13 @@ export const updateDeliveryOrder = async (req: Request, res: Response): Promise<
   }
 };
 
-export const deleteDeliveryOrder = async (req: Request, res: Response): Promise<any> => {
+export const deleteDeliveryOrder = async (
+  req: Request,
+  res: Response
+): Promise<any> => {
   const { id } = req.params;
+  const { user } = req.body;
+  const { id_user } = user;
 
   try {
     const deliveryOrders = await DeliveryOrder.findByPk(id);
