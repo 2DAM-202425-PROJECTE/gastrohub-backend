@@ -1,7 +1,8 @@
 import { Request, Response, NextFunction } from "express";
 import { verifyToken } from "../services/token_service";
+import User from "../models/user";
 
-export const authenticateToken = (
+export const authenticateToken = async (
   req: Request,
   res: Response,
   next: NextFunction
@@ -10,16 +11,21 @@ export const authenticateToken = (
   const token = authHeader?.split(" ")[1];
 
   if (!token) {
-    res.status(401).json({ msg: "Token no proporcionado" });
+    res.sendStatus(401);
     return;
   }
 
   try {
     const user = verifyToken(token);
+    const userModel: any = await User.findByPk(user.id_user);
+    if (!userModel) {
+      res.sendStatus(402);
+      return;
+    }
     req.body.user = user;
     next();
   } catch (err) {
-    res.status(403).json({ msg: "Token inválido o expirado" });
+    res.sendStatus(403);
     return;
   }
 };

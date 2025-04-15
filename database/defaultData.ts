@@ -15,7 +15,7 @@ const setDefaultData = async () => {
     License.create({
       license_type: 1,
       details: "This is a test license",
-      start_date: new Date(),
+      start_date: new Date().setFullYear(new Date().getFullYear() - 2),
       end_date: new Date().setFullYear(new Date().getFullYear() + 1),
     }).then((license) => {
       Restaurant.create({
@@ -32,6 +32,23 @@ const setDefaultData = async () => {
           pin: "12345",
           name: "Admin",
           email: "test@gmail.com",
+        });
+        User.create({
+          username: "regular",
+          password: "regular",
+          admin: false,
+          id_restaurant: 1,
+          pin: "12345",
+          name: "Regular",
+          email: "test@gmail.com",
+        });
+        User.create({
+          username: "pepe",
+          password: "pepe",
+          admin: false,
+          id_restaurant: null,
+          name: "pepe",
+          email: "pepe@gmail.com",
         });
         Inventory.create({
           id_restaurant: 1,

@@ -1,6 +1,8 @@
 import { Request, Response } from "express";
 import User from "../models/user";
 import { generateToken } from "../services/token_service";
+import Restaurant from "../models/restaurant";
+import License from "../models/license";
 
 export const getUsers = async (req: Request, res: Response) => {
   const { user } = req.body;
@@ -193,12 +195,18 @@ export const updateUser = async (req: Request, res: Response): Promise<any> => {
   const { body } = req;
 
   try {
-    const user = await User.findByPk(id_user);
+    const user: any = await User.findByPk(id_user);
     if (!user) {
       return res.status(404).json({
         msg: `There is no user with the id ${id_user}`,
       });
     } else {
+      if (body.password == "") {
+        body.password = user.password;
+      }
+      if(body.pin == null && user.pin != null){
+        body.pin = user.pin;
+      }
       await user.update(body);
 
       res.json(user);
@@ -215,28 +223,157 @@ export const getUserbyUsername = async (req: Request, res: Response) => {
   const { username } = req.params;
 
   try {
-    const users: any = await User.findOne({
+    const user: any = await User.findOne({
       where: {
         username,
       },
     });
-    if (users) {
-      const toSend = users.map((user: any) => {
-        return {
-          id_user: user.id_user,
-          username: user.username,
-          email: user.email,
-          admin: user.admin,
-          image: user.image,
-          tag: user.tag,
-          name: user.name,
-          id_restaurant: user.id_restaurant,
-        };
-      });
+    if (user) {
+      const toSend = {
+        id_user: user.id_user,
+        username: user.username,
+        email: user.email,
+        admin: user.admin,
+        image: user.image,
+        tag: user.tag,
+        name: user.name,
+        id_restaurant: user.id_restaurant,
+      };
       res.json(toSend);
     } else {
       res.status(404).json({
         msg: `There is no user with the username ${username}`,
+      });
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      msg: "Talk to the administrator",
+    });
+  }
+};
+
+export const userAdminCheck = async (req: Request, res: Response) => {
+  const { user } = req.body;
+  const { id_user } = user;
+
+  try {
+    const user: any = await User.findOne({
+      where: {
+        id_user,
+      },
+    });
+    if (user) {
+      if (user.admin) {
+        res.json({ admin: true });
+      } else {
+        res.json({ admin: false });
+      }
+    } else {
+      res.status(404).json({
+        msg: `There is no user with the id ${id_user}`,
+      });
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      msg: "Talk to the administrator",
+    });
+  }
+};
+
+export const assignWorker = async (req: Request, res: Response) => {
+  const { user } = req.body;
+  const { id_user } = user;
+  const { id } = req.params;
+
+  try {
+    const user: any = await User.findOne({
+      where: {
+        id_user,
+      },
+    });
+    const restaurant: any = await Restaurant.findByPk(user.id_restaurant);
+    const license: any = await License.findByPk(restaurant.id_license);
+
+    const actualWorkers = await User.findAll({
+      where: {
+        id_restaurant: user.id_restaurant,
+      },
+    });
+    const actualWorkersCount = actualWorkers.length;
+
+    if (license.license_type != 2 && actualWorkersCount >= 5) {
+      res.sendStatus(411);
+    } else {
+      const worker: any = await User.findByPk(id);
+      if (worker) {
+        await worker.update({
+          id_restaurant: user.id_restaurant,
+          admin: false,
+          tag: "",
+          pin: "00000",
+        });
+        res.json({ added: true });
+      } else {
+        res.status(404).json({
+          msg: `There is no user with the id ${id}`,
+        });
+      }
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      msg: "Talk to the administrator",
+    });
+  }
+};
+
+export const deleteWorker = async (req: Request, res: Response) => {
+  const { user } = req.body;
+  const { id_user } = user;
+  const { id } = req.params;
+
+  try {
+    const worker: any = await User.findByPk(id);
+    if (worker) {
+      await worker.update({
+        id_restaurant: null,
+        admin: false,
+        tag: "",
+        pin: "00000",
+      });
+      res.json({ deleted: true });
+    } else {
+      res.status(404).json({
+        msg: `There is no user with the id ${id}`,
+      });
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      msg: "Talk to the administrator",
+    });
+  }
+};
+
+export const leaveRestaurant = async (req: Request, res: Response) => {
+  const { user } = req.body;
+  const { id_user } = user;
+
+  try {
+    const worker: any = await User.findByPk(id_user);
+    if (worker) {
+      await worker.update({
+        id_restaurant: null,
+        admin: false,
+        tag: "",
+        pin: "00000",
+      });
+      res.json({ left: true });
+    } else {
+      res.status(404).json({
+        msg: `There is no user with the id ${id_user}`,
       });
     }
   } catch (error) {
