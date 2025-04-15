@@ -47,9 +47,7 @@ export const deleteBooking = async (
   try {
     const booking = await Booking.findByPk(id);
     if (!booking) {
-      return res.status(404).json({
-        msg: `There is no booking with the id ${id}`,
-      });
+      return res.sendStatus(404);
     } else {
       await booking.destroy();
 

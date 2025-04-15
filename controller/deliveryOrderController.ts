@@ -29,6 +29,8 @@ export const createDeliveryOrder = async (req: Request, res: Response) => {
   const { id_user } = user;
 
   try {
+    const user: any = await User.findByPk(id_user);
+    body.id_restaurant = user!.id_restaurant;
     const deliveryOrders = await DeliveryOrder.create(body);
     res.json(deliveryOrders);
   } catch (error) {
@@ -51,9 +53,7 @@ export const updateDeliveryOrder = async (
   try {
     const deliveryOrders = await DeliveryOrder.findByPk(id);
     if (!deliveryOrders) {
-      return res.status(404).json({
-        msg: `There is no deliveryOrders with the id ${id}`,
-      });
+      return res.sendStatus(404);
     } else {
       await deliveryOrders.update(body);
 
@@ -78,9 +78,7 @@ export const deleteDeliveryOrder = async (
   try {
     const deliveryOrders = await DeliveryOrder.findByPk(id);
     if (!deliveryOrders) {
-      return res.status(404).json({
-        msg: `There is no deliveryOrders with the id ${id}`,
-      });
+      return res.sendStatus(404);
     } else {
       await deliveryOrders.destroy();
 

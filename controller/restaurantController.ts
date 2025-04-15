@@ -12,9 +12,7 @@ export const getRestaurant = async (req: Request, res: Response) => {
     if (restaurant) {
       res.json(restaurant);
     } else {
-      res.status(404).json({
-        msg: `There is no restaurant with the id ${user.id_restaurant}`,
-      });
+      res.sendStatus(404);
     }
   } catch (error) {
     console.log(error);
@@ -51,9 +49,7 @@ export const updateRestaurant = async (
 
     const restaurant = await Restaurant.findByPk(user.id_restaurant);
     if (!restaurant) {
-      return res.status(404).json({
-        msg: `There is no restaurant with the id ${user.id_restaurant}`,
-      });
+      res.sendStatus(404);
     } else {
       await restaurant.update(body);
 

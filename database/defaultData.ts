@@ -13,7 +13,7 @@ import DeliveryOrder from "../models/deliveryOrder";
 const setDefaultData = async () => {
   try {
     License.create({
-      license_type: 1,
+      license_type: 2,
       details: "This is a test license",
       start_date: new Date().setFullYear(new Date().getFullYear() - 2),
       end_date: new Date().setFullYear(new Date().getFullYear() + 1),

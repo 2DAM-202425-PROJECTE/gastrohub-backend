@@ -4,6 +4,8 @@ import OrderProduct from "../models/orderProduct";
 import { Op } from "sequelize";
 import Product from "../models/product";
 import User from "../models/user";
+import Inventory from "../models/inventory";
+import ProductIngredient from "../models/productIngredient";
 
 export const getAllActiveOrders = async (req: Request, res: Response) => {
   const { user } = req.body;
@@ -85,6 +87,8 @@ export const createOrder = async (req: Request, res: Response) => {
   const { id_user } = user;
 
   try {
+    const user: any = await User.findByPk(id_user);
+    body.id_restaurant = user!.id_restaurant;
     const order = await Order.create(body);
     res.json(order);
   } catch (error) {
@@ -107,9 +111,7 @@ export const updateOrder = async (
   try {
     const order: any = await Order.findByPk(id);
     if (!order) {
-      return res.status(404).json({
-        msg: `There is no order with the id ${id}`,
-      });
+      return res.sendStatus(404);
     } else {
       if (body.payed != order.payed) {
         if (body.payed == true) {
@@ -121,6 +123,25 @@ export const updateOrder = async (
           orderProducts.forEach(async (orderProduct) => {
             await orderProduct.update({
               state: 1,
+            });
+          });
+
+          orderProducts.forEach(async (orderProduct: any) => {
+            const product: any = await Product.findByPk(
+              orderProduct.id_product
+            );
+            const productIngredients = await ProductIngredient.findAll({
+              where: {
+                id_product: product!.id_product,
+              },
+            });
+            productIngredients.forEach(async (productIngredient: any) => {
+              const ingredient: any = await Inventory.findByPk(
+                productIngredient.id_ingredient
+              );
+              await ingredient.update({
+                quantity: ingredient.quantity - orderProduct.quantity,
+              });
             });
           });
         }
@@ -148,9 +169,7 @@ export const deleteOrder = async (
   try {
     const order = await Order.findByPk(id);
     if (!order) {
-      return res.status(404).json({
-        msg: `There is no order with the id ${id}`,
-      });
+      return res.sendStatus(404);
     } else {
       await order.destroy();
 

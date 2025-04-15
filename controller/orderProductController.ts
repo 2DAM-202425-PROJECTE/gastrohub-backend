@@ -35,9 +35,7 @@ export const updateOrderProduct = async (
       },
     });
     if (!product) {
-      return res.status(404).json({
-        msg: `There is no user with the id ${id_order} and product ${id_product}`,
-      });
+      return res.sendStatus(404);
     } else {
       await product.update(body);
 
@@ -67,9 +65,8 @@ export const deleteOrderProduct = async (
       },
     });
     if (!product) {
-      return res.status(404).json({
-        msg: `There is no product with the id ${id_product} in order ${id_order}`,
-      });
+      return res.sendStatus(404);
+
     } else {
       await product.destroy();
 

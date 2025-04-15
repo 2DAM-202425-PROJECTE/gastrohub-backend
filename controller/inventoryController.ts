@@ -34,9 +34,8 @@ export const getOneElement = async (
   try {
     const inventory = await Inventory.findByPk(id);
     if (!inventory) {
-      return res.status(404).json({
-        msg: `There is no inventory with the id ${id}`,
-      });
+      return res.sendStatus(404);
+
     } else {
       res.json(inventory);
     }
@@ -76,9 +75,8 @@ export const updateInventory = async (
   try {
     const inventory = await Inventory.findByPk(id);
     if (!inventory) {
-      return res.status(404).json({
-        msg: `There is no inventory with the id ${id}`,
-      });
+      return res.sendStatus(404);
+
     } else {
       await inventory.update(body);
 
@@ -103,9 +101,8 @@ export const deleteInventory = async (
   try {
     const inventory = await Inventory.findByPk(id);
     if (!inventory) {
-      return res.status(404).json({
-        msg: `No existe un inventario con el id ${id}`,
-      });
+      return res.sendStatus(404);
+
     }
 
     await inventory.destroy();

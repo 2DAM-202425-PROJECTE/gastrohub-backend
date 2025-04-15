@@ -12,6 +12,9 @@ import {
   assignWorker,
   deleteWorker,
   leaveRestaurant,
+  updateWorker,
+  resetPin,
+  createWorker,
 } from "../controller/userController";
 import { authenticateToken } from "../middlewares/authenticationToken";
 import { restaurantLicense } from "../middlewares/restaurantLicense";
@@ -51,6 +54,30 @@ router.get(
   deleteWorker
 );
 
+router.get(
+  "/resetPin/:id",
+  authenticateToken,
+  restaurantLicense,
+  adminCheck,
+  resetPin
+);
+
 router.get("/leaveRestaurant", authenticateToken, leaveRestaurant);
+
+router.put(
+  "/updateWorker/:id",
+  authenticateToken,
+  restaurantLicense,
+  adminCheck,
+  updateWorker
+);
+
+router.post(
+  "/createWorker",
+  authenticateToken,
+  restaurantLicense,
+  adminCheck,
+  createWorker
+);
 
 export default router;

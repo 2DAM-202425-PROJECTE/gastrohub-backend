@@ -84,9 +84,8 @@ export const updateProduct = async (
   try {
     const existingProduct = await Product.findByPk(id);
     if (!existingProduct) {
-      return res.status(404).json({
-        msg: `There is no product with the id ${id}`,
-      });
+      res.sendStatus(404);
+      return;
     }
 
     await existingProduct.update(product);
@@ -138,9 +137,8 @@ export const deleteProduct = async (
   try {
     const product = await Product.findByPk(id);
     if (!product) {
-      return res.status(404).json({
-        msg: `There is no product with the id ${id}`,
-      });
+      res.sendStatus(404);
+      return;
     }
 
     await ProductIngredient.destroy({

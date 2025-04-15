@@ -48,9 +48,7 @@ export const updateTimesheet = async (
   try {
     const timesheet = await Timesheet.findByPk(id);
     if (!timesheet) {
-      return res.status(404).json({
-        msg: `There is no timesheet with the id ${id}`,
-      });
+      res.sendStatus(404);
     } else {
       await timesheet.update(req.body);
 

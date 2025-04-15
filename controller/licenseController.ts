@@ -54,9 +54,8 @@ export const updateLicense = async (
   try {
     const license = await License.findByPk(id);
     if (!license) {
-      return res.status(404).json({
-        msg: `There is no license with the id ${id}`,
-      });
+      return res.sendStatus(404);
+
     } else {
       await license.update(body);
 
@@ -81,9 +80,8 @@ export const deleteLicense = async (
   try {
     const license = await License.findByPk(id);
     if (!license) {
-      return res.status(404).json({
-        msg: `There is no license with the id ${id}`,
-      });
+      return res.sendStatus(404);
+
     } else {
       await license.destroy();
 

@@ -51,9 +51,7 @@ export const deleteSchedule = async (
   try {
     const schedule = await Schedule.findByPk(id);
     if (!schedule) {
-      return res.status(404).json({
-        msg: `There is no schedule with the id ${id}`,
-      });
+      res.sendStatus(404);
     } else {
       await schedule.destroy();
 
@@ -147,7 +145,7 @@ export const createMultipleSchedules = async (
     }
 
     const created = await Schedule.bulkCreate(schedules);
-    res.status(201).json({
+    res.status(200).json({
       msg: "Schedules created successfully",
       count: created.length,
       data: created,

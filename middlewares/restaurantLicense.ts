@@ -13,8 +13,12 @@ export const restaurantLicense = async (
 
   try {
     const user: any = await User.findByPk(id_user);
+    if (user.id_restaurant === null) {
+      res.sendStatus(418);
+      return;
+    }
     const restaurant: any = await Restaurant.findByPk(user.id_restaurant);
-    if(!restaurant) {
+    if (!restaurant) {
       res.sendStatus(407);
       return;
     }

@@ -57,9 +57,7 @@ export const getUser = async (req: Request, res: Response) => {
       };
       res.json(toSend);
     } else {
-      res.status(404).json({
-        msg: `There is no user with the id ${id_user}`,
-      });
+      res.sendStatus(404);
     }
   } catch (error) {
     console.log(error);
@@ -76,17 +74,18 @@ export const pinCheck = async (req: Request, res: Response) => {
   try {
     const user: any = await User.findByPk(id_user);
     if (user) {
+      console.log("PIN: ", pin);
+      if (user.pin === null) {
+        res.sendStatus(413);
+        return;
+      }
       if (user.pin === pin) {
         res.json({ correct: true });
       } else {
-        res.status(400).json({
-          msg: "Pin incorrect",
-        });
+        res.sendStatus(412);
       }
     } else {
-      res.status(404).json({
-        msg: `There is no user with the id ${id_user}`,
-      });
+      res.sendStatus(404);
     }
   } catch (error) {
     console.log(error);
@@ -108,9 +107,7 @@ export const loginUser = async (req: Request, res: Response): Promise<any> => {
       },
     });
     if (!user) {
-      return res.status(400).json({
-        msg: "User or password incorrect",
-      });
+      res.sendStatus(414);
     } else {
       const token = generateToken({
         id_user: user.id_user,
@@ -119,8 +116,6 @@ export const loginUser = async (req: Request, res: Response): Promise<any> => {
       res.json({ token });
     }
   } catch (error) {
-    console.log(body);
-    console.log(error);
     res.status(500).json({
       msg: "Talk to the administrator",
     });
@@ -141,9 +136,7 @@ export const loginUserByToken = async (
       },
     });
     if (!user) {
-      return res.status(400).json({
-        msg: "User or password incorrect",
-      });
+      res.sendStatus(414);
     } else {
       res.json({ loggedUser: true });
     }
@@ -170,9 +163,7 @@ export const createUser = async (req: Request, res: Response): Promise<any> => {
       },
     });
     if (userByUsername || userByEmail) {
-      return res.status(400).json({
-        msg: "The user already exists",
-      });
+      res.sendStatus(415);
     } else {
       const newUser: any = await User.create(body);
       const token = generateToken({
@@ -180,6 +171,66 @@ export const createUser = async (req: Request, res: Response): Promise<any> => {
         username: newUser.username,
       });
       res.json({ token });
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      msg: "Talk to the administrator",
+    });
+  }
+};
+
+export const createWorker = async (
+  req: Request,
+  res: Response
+): Promise<any> => {
+  const { body } = req;
+  const { username, email, password } = body;
+  const { user } = req.body;
+  const { id_user } = user;
+
+  try {
+    const user: any = await User.findOne({
+      where: {
+        id_user,
+      },
+    });
+    const restaurant: any = await Restaurant.findByPk(user.id_restaurant);
+    const license: any = await License.findByPk(restaurant.id_license);
+
+    const actualWorkers = await User.findAll({
+      where: {
+        id_restaurant: user.id_restaurant,
+      },
+    });
+    const actualWorkersCount = actualWorkers.length;
+
+    if (license.license_type != 2 && actualWorkersCount >= 5) {
+      res.sendStatus(411);
+    } else {
+      const userByUsername = await User.findOne({
+        where: {
+          username,
+        },
+      });
+      const userByEmail = await User.findOne({
+        where: {
+          email,
+        },
+      });
+      if (userByUsername || userByEmail) {
+        res.sendStatus(415);
+      } else {
+        const newUser: any = await User.create(body);
+        newUser.update({
+          restaurant: user.id_restaurant,
+          admin: false,
+          tag: "",
+          pin: "00000",
+        });
+
+        res.json({ done: true });
+      }
     }
   } catch (error) {
     console.log(error);
@@ -197,19 +248,17 @@ export const updateUser = async (req: Request, res: Response): Promise<any> => {
   try {
     const user: any = await User.findByPk(id_user);
     if (!user) {
-      return res.status(404).json({
-        msg: `There is no user with the id ${id_user}`,
-      });
+      res.sendStatus(404);
     } else {
       if (body.password == "") {
         body.password = user.password;
       }
-      if(body.pin == null && user.pin != null){
+      if (body.pin == null && user.pin != null) {
         body.pin = user.pin;
       }
       await user.update(body);
 
-      res.json(user);
+      res.json({ done: true });
     }
   } catch (error) {
     console.log(error);
@@ -241,9 +290,7 @@ export const getUserbyUsername = async (req: Request, res: Response) => {
       };
       res.json(toSend);
     } else {
-      res.status(404).json({
-        msg: `There is no user with the username ${username}`,
-      });
+      res.sendStatus(404);
     }
   } catch (error) {
     console.log(error);
@@ -270,9 +317,7 @@ export const userAdminCheck = async (req: Request, res: Response) => {
         res.json({ admin: false });
       }
     } else {
-      res.status(404).json({
-        msg: `There is no user with the id ${id_user}`,
-      });
+      res.sendStatus(404);
     }
   } catch (error) {
     console.log(error);
@@ -308,17 +353,20 @@ export const assignWorker = async (req: Request, res: Response) => {
     } else {
       const worker: any = await User.findByPk(id);
       if (worker) {
-        await worker.update({
-          id_restaurant: user.id_restaurant,
-          admin: false,
-          tag: "",
-          pin: "00000",
-        });
+        if (worker.id_restaurant != null) {
+          res.sendStatus(417);
+          return;
+        } else {
+          await worker.update({
+            id_restaurant: user.id_restaurant,
+            admin: false,
+            tag: "",
+            pin: "00000",
+          });
+        }
         res.json({ added: true });
       } else {
-        res.status(404).json({
-          msg: `There is no user with the id ${id}`,
-        });
+        res.sendStatus(404);
       }
     }
   } catch (error) {
@@ -345,9 +393,30 @@ export const deleteWorker = async (req: Request, res: Response) => {
       });
       res.json({ deleted: true });
     } else {
-      res.status(404).json({
-        msg: `There is no user with the id ${id}`,
+      res.sendStatus(404);
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      msg: "Talk to the administrator",
+    });
+  }
+};
+
+export const resetPin = async (req: Request, res: Response) => {
+  const { user } = req.body;
+  const { id_user } = user;
+  const { id } = req.params;
+
+  try {
+    const worker: any = await User.findByPk(id);
+    if (worker) {
+      await worker.update({
+        pin: "00000",
       });
+      res.json({ done: true });
+    } else {
+      res.sendStatus(404);
     }
   } catch (error) {
     console.log(error);
@@ -372,9 +441,48 @@ export const leaveRestaurant = async (req: Request, res: Response) => {
       });
       res.json({ left: true });
     } else {
-      res.status(404).json({
-        msg: `There is no user with the id ${id_user}`,
+      res.sendStatus(404);
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      msg: "Talk to the administrator",
+    });
+  }
+};
+
+export const updateWorker = async (
+  req: Request,
+  res: Response
+): Promise<any> => {
+  const { id } = req.params;
+  const { user } = req.body;
+  const { id_user } = user;
+  const { tag, admin } = req.body;
+
+  try {
+    const user: any = await User.findByPk(id);
+    const userAdmins = await User.findAll({
+      where: {
+        id_restaurant: user.id_restaurant,
+        admin: true,
+      },
+    });
+
+    const userAdminsCount = userAdmins.length;
+    if (!admin && userAdminsCount <= 1) {
+      res.sendStatus(416);
+      return;
+    }
+    if (!user) {
+      res.sendStatus(404);
+    } else {
+      await user.update({
+        tag,
+        admin,
       });
+
+      res.json({ done: true });
     }
   } catch (error) {
     console.log(error);
