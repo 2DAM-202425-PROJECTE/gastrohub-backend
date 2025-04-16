@@ -3,6 +3,7 @@ import User from "../models/user";
 import { generateToken } from "../services/token_service";
 import Restaurant from "../models/restaurant";
 import License from "../models/license";
+import bcrypt from "bcryptjs";
 
 export const getUsers = async (req: Request, res: Response) => {
   const { user } = req.body;
@@ -102,12 +103,16 @@ export const loginUser = async (req: Request, res: Response): Promise<any> => {
     const user: any = await User.findOne({
       where: {
         username: username,
-        password: password,
       },
     });
     if (!user) {
       res.sendStatus(414);
     } else {
+      const isMatch = await bcrypt.compare(password, user.password);
+
+      if (!isMatch) {
+        return res.sendStatus(414); 
+      }
       const token = generateToken({
         id_user: user.id_user,
         username: user.username,
@@ -151,6 +156,8 @@ export const createUser = async (req: Request, res: Response): Promise<any> => {
   const { username, email, password } = body;
 
   try {
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
     const userByUsername = await User.findOne({
       where: {
         username,
@@ -164,7 +171,10 @@ export const createUser = async (req: Request, res: Response): Promise<any> => {
     if (userByUsername || userByEmail) {
       res.sendStatus(415);
     } else {
-      const newUser: any = await User.create(body);
+      const newUser: any = await User.create({
+        ...body,
+        password: hashedPassword,
+      });
       const token = generateToken({
         id_user: newUser.id_user,
         username: newUser.username,
@@ -189,6 +199,8 @@ export const createWorker = async (
   const { id_user } = user;
 
   try {
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
     const user: any = await User.findOne({
       where: {
         id_user,
@@ -220,7 +232,10 @@ export const createWorker = async (
       if (userByUsername || userByEmail) {
         res.sendStatus(415);
       } else {
-        const newUser: any = await User.create(body);
+        const newUser: any = await User.create({
+          ...body,
+          password: hashedPassword,
+        });
         newUser.update({
           restaurant: user.id_restaurant,
           admin: false,
@@ -250,7 +265,9 @@ export const updateUser = async (req: Request, res: Response): Promise<any> => {
       res.sendStatus(404);
     } else {
       if (body.password == "") {
-        body.password = user.password;
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(body.password, salt);
+        body.password = hashedPassword;
       }
       if (body.pin == null && user.pin != null) {
         body.pin = user.pin;

@@ -9,8 +9,11 @@ import Order from "../models/order";
 import OrderProduct from "../models/orderProduct";
 import Booking from "../models/booking";
 import DeliveryOrder from "../models/deliveryOrder";
+import bcrypt from 'bcryptjs';
 
 const setDefaultData = async () => {
+  const salt = await bcrypt.genSalt(10);
+  const hashedPassword = await bcrypt.hash('admin', salt);
   try {
     License.create({
       license_type: 2,
@@ -26,7 +29,7 @@ const setDefaultData = async () => {
       }).then((restaurant) => {
         User.create({
           username: "admin",
-          password: "admin",
+          password: hashedPassword,
           admin: true,
           id_restaurant: 1,
           pin: "12345",
@@ -35,7 +38,7 @@ const setDefaultData = async () => {
         });
         User.create({
           username: "regular",
-          password: "regular",
+          password: hashedPassword,
           admin: false,
           id_restaurant: 1,
           pin: "12345",
@@ -44,7 +47,7 @@ const setDefaultData = async () => {
         });
         User.create({
           username: "pepe",
-          password: "pepe",
+          password: hashedPassword,
           admin: false,
           id_restaurant: null,
           name: "pepe",
