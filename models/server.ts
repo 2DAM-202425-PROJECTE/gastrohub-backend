@@ -15,7 +15,7 @@ import orderProductRoutes from "../routes/orderProductRoutes";
 import setDefaultData from "../database/defaultData";
 
 import db from "../database/connection";
-
+import { decrypt, encrypt } from "../services/encrypt_service";
 
 class Server {
   private app: Application;
@@ -64,7 +64,31 @@ class Server {
     this.app.use(cors());
 
     //Lectura del body
-    this.app.use(express.json({limit: '50mb'}));
+    this.app.use(express.json({ limit: "50mb" }));
+
+    this.app.use((req, res, next) => {
+      const originalJson = res.json;
+
+      res.json = function (data) {
+        const json = JSON.stringify(data);
+        const encrypted = encrypt(json);
+        return originalJson.call(this, { encrypted });
+      };
+
+      next();
+    });
+
+    this.app.use((req: any, res: any, next) => {
+      if (req.body?.encrypted) {
+        try {
+          const decrypted = decrypt(req.body.encrypted);
+          req.body = JSON.parse(decrypted);
+        } catch (e) {
+          return res.status(400).json({ message: "Invalid encrypted body" });
+        }
+      }
+      next();
+    });
   }
 
   routes() {
