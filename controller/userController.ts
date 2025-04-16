@@ -74,7 +74,6 @@ export const pinCheck = async (req: Request, res: Response) => {
   try {
     const user: any = await User.findByPk(id_user);
     if (user) {
-      console.log("PIN: ", pin);
       if (user.pin === null) {
         res.sendStatus(413);
         return;
