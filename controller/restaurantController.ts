@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import Restaurant from "../models/restaurant";
 import User from "../models/user";
+import License from "../models/license";
 
 export const getRestaurant = async (req: Request, res: Response) => {
   const { user } = req.body;
@@ -23,11 +24,30 @@ export const getRestaurant = async (req: Request, res: Response) => {
 };
 
 export const createRestaurant = async (req: Request, res: Response) => {
-  const { body } = req;
+  const { restaurant, license, id_user } = req.body;
 
   try {
-    const restaurant = await Restaurant.create(body);
-    res.json(restaurant);
+    const newLicense: any = await License.create(license);
+    restaurant.id_license = newLicense.id_license;
+    const newRestaurant: any = await Restaurant.create(restaurant);
+    const user: any = await User.findByPk(id_user);
+    if (user) {
+      if (user.id_restaurant != null) {
+        res.sendStatus(417);
+        return;
+      } else {
+        await user.update({
+          id_restaurant: newRestaurant.id_restaurant,
+          admin: true,
+          tag: "",
+          pin: "00000",
+        });
+      }
+    } else {
+      res.sendStatus(404);
+    }
+
+    res.json({ done: true });
   } catch (error) {
     console.log(error);
     res.status(500).json({
