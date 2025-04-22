@@ -3,6 +3,7 @@ import {
   createRestaurant,
   getRestaurant,
   updateRestaurant,
+  getWebMenu,
 } from "../controller/restaurantController";
 import { authenticateToken } from "../middlewares/authenticationToken";
 import { restaurantLicense } from "../middlewares/restaurantLicense";
@@ -19,5 +20,7 @@ router.put(
   adminCheck,
   updateRestaurant
 );
+
+router.get('/getWebMenu/:id', getWebMenu);
 
 export default router;

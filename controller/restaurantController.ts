@@ -2,6 +2,9 @@ import { NextFunction, Request, Response } from "express";
 import Restaurant from "../models/restaurant";
 import User from "../models/user";
 import License from "../models/license";
+import Product from "../models/product";
+import ProductIngredient from "../models/productIngredient";
+import Inventory from "../models/inventory";
 
 export const getRestaurant = async (req: Request, res: Response) => {
   const { user } = req.body;
@@ -75,6 +78,81 @@ export const updateRestaurant = async (
 
       res.json(restaurant);
     }
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      msg: "Talk to the administrator",
+    });
+  }
+};
+
+export const getWebMenu = async (req: Request, res: Response): Promise<any> => {
+  const { id } = req.params;
+
+  try {
+    const restaurant: any = await Restaurant.findByPk(id);
+    if (!restaurant) {
+      res.sendStatus(404);
+    }
+    const license: any = await License.findByPk(restaurant.id_license);
+    if (!license) {
+      res.sendStatus(404);
+    }
+    const currentDate = new Date();
+    const expirationDate = new Date(license.end_date);
+    if (currentDate > expirationDate) {
+      res.sendStatus(404);
+    }
+    if (license.license_type != 2) {
+      res.sendStatus(404);
+    }
+
+    const restaurantData = {
+      id_restaurant: restaurant.id_restaurant,
+      name: restaurant.name,
+      address: restaurant.address,
+      logo: restaurant.logo,
+    };
+
+    const products = await Product.findAll({
+      where: {
+        id_restaurant: restaurant.id_restaurant,
+      },
+    });
+
+    const productIngredient = await ProductIngredient.findAll({
+      where: {
+        id_product: products.map((product: any) => product.id_product),
+      },
+    });
+
+    const productIngredientMap = productIngredient.reduce(
+      (map: any, ingredient: any) => {
+        if (!map[ingredient.id_product]) {
+          map[ingredient.id_product] = [];
+        }
+        map[ingredient.id_product].push({
+          id_ingredient: ingredient.id_ingredient,
+          quantity: ingredient.quantity,
+        });
+        return map;
+      },
+      {}
+    );
+
+    const ingredients = await Inventory.findAll({
+      where: {
+        id_ingredient: productIngredient.map(
+          (ingredient: any) => ingredient.id_ingredient
+        ),
+      },
+    });
+    const ingredientMap = ingredients.reduce((map: any, ingredient: any) => {
+      map[ingredient.id_ingredient] = ingredient;
+      return map;
+    }, {});
+
+    res.json({ products, productIngredientMap, ingredientMap, restaurantData });
   } catch (error) {
     console.log(error);
     res.status(500).json({
