@@ -93,18 +93,22 @@ export const getWebMenu = async (req: Request, res: Response): Promise<any> => {
     const restaurant: any = await Restaurant.findByPk(id);
     if (!restaurant) {
       res.sendStatus(404);
+      return;
     }
     const license: any = await License.findByPk(restaurant.id_license);
     if (!license) {
       res.sendStatus(404);
+      return;
     }
     const currentDate = new Date();
     const expirationDate = new Date(license.end_date);
     if (currentDate > expirationDate) {
       res.sendStatus(404);
+      return;
     }
     if (license.license_type != 2) {
       res.sendStatus(404);
+      return;
     }
 
     const restaurantData = {

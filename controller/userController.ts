@@ -264,10 +264,12 @@ export const updateUser = async (req: Request, res: Response): Promise<any> => {
     if (!user) {
       res.sendStatus(404);
     } else {
-      if (body.password == "") {
+      if (body.password != "" && body.password != null) {
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(body.password, salt);
         body.password = hashedPassword;
+      } else{
+        body.password = user.password;
       }
       if (body.pin == null && user.pin != null) {
         body.pin = user.pin;
