@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import Inventory from "../models/inventory";
 import User from "../models/user";
+import ProductIngredient from "../models/productIngredient";
 
 export const getInventory = async (req: Request, res: Response) => {
   const { user } = req.body;
@@ -35,7 +36,6 @@ export const getOneElement = async (
     const inventory = await Inventory.findByPk(id);
     if (!inventory) {
       return res.sendStatus(404);
-
     } else {
       res.json(inventory);
     }
@@ -76,7 +76,6 @@ export const updateInventory = async (
     const inventory = await Inventory.findByPk(id);
     if (!inventory) {
       return res.sendStatus(404);
-
     } else {
       await inventory.update(body);
 
@@ -102,23 +101,21 @@ export const deleteInventory = async (
     const inventory = await Inventory.findByPk(id);
     if (!inventory) {
       return res.sendStatus(404);
-
     }
+
+    const productIngredients = await ProductIngredient.findAll({
+      where: {
+        id_ingredient: id,
+      },
+    });
+    await productIngredients.forEach(async (productIngredient) => {
+      await productIngredient.destroy();
+    });
 
     await inventory.destroy();
     res.json(inventory);
   } catch (error: any) {
     console.log(error);
-
-    // Verificamos si el error es por restricción de clave foránea
-    if (
-      error.name === "SequelizeForeignKeyConstraintError" ||
-      error.parent?.code === "ER_ROW_IS_REFERENCED_2" // Para MySQL
-    ) {
-      return res.status(400).json({
-        msg: "Este inventario está asociado a un menú. Arregla ese menú primero antes de eliminar.",
-      });
-    }
 
     res.status(500).json({
       msg: "Habla con el administrador",
