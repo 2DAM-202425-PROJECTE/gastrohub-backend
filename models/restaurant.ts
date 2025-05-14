@@ -50,6 +50,26 @@ const Restaurant = db.define(
         key: "id_license",
       },
     },
+    phone: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+    },
+    banner: {
+      type: DataTypes.BLOB,
+      allowNull: true,
+      get() {
+        const bannerBuffer = this.getDataValue("banner");
+        return bannerBuffer ? bannerBuffer.toString("base64") : null;
+      },
+      set(value) {
+        if (typeof value === "string") {
+          const bufferValue = Buffer.from(value, "base64");
+          this.setDataValue("banner", bufferValue);
+        } else {
+          this.setDataValue("banner", value);
+        }
+      },
+    },
   },
   {
     timestamps: false,

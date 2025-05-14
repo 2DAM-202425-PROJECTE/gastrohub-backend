@@ -113,10 +113,12 @@ export const loginUser = async (req: Request, res: Response): Promise<any> => {
       if (!isMatch) {
         return res.sendStatus(414); 
       }
+
       const token = generateToken({
         id_user: user.id_user,
         username: user.username,
       });
+
       res.json({ token });
     }
   } catch (error) {

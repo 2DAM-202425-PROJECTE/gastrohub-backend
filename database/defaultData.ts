@@ -26,6 +26,7 @@ const setDefaultData = async () => {
         address: "Carrer de la Rapita",
         capacity: 100,
         id_license: 1,
+        phone: 123456789,
       }).then((restaurant) => {
         User.create({
           username: "admin",
