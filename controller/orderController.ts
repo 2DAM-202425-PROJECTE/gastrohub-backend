@@ -18,7 +18,6 @@ export const getAllActiveOrders = async (req: Request, res: Response) => {
     const unpaidOrders = await Order.findAll({
       where: {
         id_restaurant: user!.id_restaurant,
-        payed: false,
       },
     });
 

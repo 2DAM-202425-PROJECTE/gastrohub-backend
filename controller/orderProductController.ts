@@ -22,7 +22,7 @@ export const updateOrderProduct = async (
   req: Request,
   res: Response
 ): Promise<any> => {
-  const { id_order, id_product } = req.params;
+  const { id } = req.params;
   const { body } = req;
   const { user } = req.body;
   const { id_user } = user;
@@ -30,8 +30,7 @@ export const updateOrderProduct = async (
   try {
     const product = await OrderProduct.findOne({
       where: {
-        id_order: id_order,
-        id_product: id_product,
+        id: id,
       },
     });
     if (!product) {
@@ -53,38 +52,75 @@ export const deleteOrderProduct = async (
   req: Request,
   res: Response
 ): Promise<any> => {
-  const { id_order, id_product } = req.params;
+  const { id } = req.params;
   const { user } = req.body;
   const { id_user } = user;
 
   try {
-    const product = await OrderProduct.findOne({
+    const product: any = await OrderProduct.findOne({
       where: {
-        id_order: id_order,
-        id_product: id_product,
+        id: id,
       },
     });
     if (!product) {
       return res.sendStatus(404);
-
     } else {
       await product.destroy();
 
       const order = await OrderProduct.findAll({
         where: {
-          id_order: id_order,
+          id_order: product.id_order,
         },
       });
       if (order.length == 0) {
         await Order.destroy({
           where: {
-            id_order: id_order,
+            id_order: product.id_order,
           },
         });
       }
 
       res.json(product);
     }
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      msg: "Talk to the administrator",
+    });
+  }
+};
+
+export const setPayedByList = async (
+  req: Request,
+  res: Response
+): Promise<any> => {
+  const { body } = req;
+  const { user, list_ids, mode } = req.body;
+  const { id_user } = user;
+
+  try {
+    console.log("list_ids", list_ids);
+    console.log("mode", mode);
+    const orderProducts = await OrderProduct.findAll({
+      where: {
+        id: list_ids,
+      },
+    });
+    if (orderProducts.length == 0) {
+      return res.sendStatus(404);
+    } else {
+      await Promise.all(
+        orderProducts.map(async (orderProduct: any) => {
+          await orderProduct.update({
+            payed: true,
+            payed_type: mode,
+          });
+        })
+      );
+    }
+    return res.json({
+      done: true,
+    });
   } catch (error) {
     console.log(error);
     res.status(500).json({

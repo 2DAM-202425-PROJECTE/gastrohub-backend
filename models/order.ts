@@ -27,10 +27,6 @@ const Order = db.define(
       type: DataTypes.DATE,
       allowNull: false,
     },
-    payed: {
-      type: DataTypes.BOOLEAN,
-      allowNull: false,
-    },
   },
   {
     timestamps: false,

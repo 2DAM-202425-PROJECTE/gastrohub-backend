@@ -6,6 +6,11 @@ import Product from "./product";
 const OrderProduct = db.define(
   "OrderProduct",
   {
+    id: {
+      type: DataTypes.INTEGER,
+      primaryKey: true,
+      autoIncrement: true,
+    },
     id_order: {
       type: DataTypes.INTEGER,
       allowNull: false,
@@ -22,10 +27,6 @@ const OrderProduct = db.define(
         key: "id_product",
       },
     },
-    quantity: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-    },
     details: {
       type: DataTypes.STRING,
       allowNull: true,
@@ -34,6 +35,14 @@ const OrderProduct = db.define(
       type: DataTypes.INTEGER,
       allowNull: false,
     },
+    payed: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+    },
+    payed_type:{
+      type: DataTypes.INTEGER, // 0, nothing; 1, cash; 2, card
+      allowNull: false,
+    }
   },
   {
     timestamps: false,

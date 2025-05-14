@@ -9,11 +9,11 @@ import Order from "../models/order";
 import OrderProduct from "../models/orderProduct";
 import Booking from "../models/booking";
 import DeliveryOrder from "../models/deliveryOrder";
-import bcrypt from 'bcryptjs';
+import bcrypt from "bcryptjs";
 
 const setDefaultData = async () => {
   const salt = await bcrypt.genSalt(10);
-  const hashedPassword = await bcrypt.hash('admin', salt);
+  const hashedPassword = await bcrypt.hash("admin", salt);
   try {
     License.create({
       license_type: 2,
@@ -94,13 +94,20 @@ const setDefaultData = async () => {
             id_user: 1,
             table: "1",
             date: new Date(),
-            payed: false,
           }).then((order) => {
             OrderProduct.create({
               id_order: 1,
               id_product: 1,
-              quantity: 1,
               state: 1,
+              payed: false,
+              payed_type: 0,
+            });
+            OrderProduct.create({
+              id_order: 1,
+              id_product: 1,
+              state: 1,
+              payed: false,
+              payed_type: 0,
             });
           });
           Order.create({
@@ -108,13 +115,14 @@ const setDefaultData = async () => {
             id_user: 1,
             table: "1",
             date: new Date(),
-            payed: true,
           }).then((order) => {
             OrderProduct.create({
               id_order: 2,
               id_product: 1,
               quantity: 5,
               state: 1,
+              payed: false,
+              payed_type: 1,
             });
           });
         });

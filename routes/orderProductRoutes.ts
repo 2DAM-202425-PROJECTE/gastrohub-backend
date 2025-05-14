@@ -3,6 +3,7 @@ import {
   createOrderProduct,
   deleteOrderProduct,
   updateOrderProduct,
+  setPayedByList
 } from "../controller/orderProductController";
 import { authenticateToken } from "../middlewares/authenticationToken";
 import { restaurantLicense } from "../middlewares/restaurantLicense";
@@ -16,16 +17,23 @@ router.post(
   createOrderProduct
 );
 router.put(
-  "/update/:id_order/:id_product",
+  "/update/:id",
   authenticateToken,
   restaurantLicense,
   updateOrderProduct
 );
 router.delete(
-  "/delete/:id_order/:id_product",
+  "/delete/:id",
   authenticateToken,
   restaurantLicense,
   deleteOrderProduct
+);
+
+router.post(
+  "/setPayedByList",
+  authenticateToken,
+  restaurantLicense,
+  setPayedByList
 );
 
 export default router;
