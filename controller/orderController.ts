@@ -219,23 +219,25 @@ export const getAnalytics = async (
 
     // Inicializamos los objetos para almacenar las estadísticas
     const analytics: { [key: string]: any } = {};
+    const earnings: { [key: string]: any } = {};
 
     // ----------------- Día -----------------
     const dayAnalytics: { [key: string]: number } = {};
+    const dayEarnings: { [key: string]: number } = {};
     for (let i = 0; i < 24; i++) {
       const start = new Date();
       start.setHours(i, 0, 0, 0);
       const end = new Date();
       end.setHours(i + 1, 0, 0, 0);
 
-      const count = lastOrders.filter((order: any) => {
+      const orders = lastOrders.filter((order: any) => {
         const orderDate = new Date(order.date);
         return (
           orderDate >= start && orderDate < end && orderDate >= past24Hours
         );
-      }).length;
+      });
 
-      dayAnalytics[`${i}:00`] = count;
+      dayAnalytics[`${i}:00`] = orders.length;
     }
     analytics["day"] = dayAnalytics;
 
@@ -304,7 +306,7 @@ export const getAnalytics = async (
     }
     analytics["year"] = yearAnalytics;
 
-    res.json(analytics);
+    res.json({ orders: analytics });
   } catch (error) {
     console.log(error);
     res.status(500).json({
