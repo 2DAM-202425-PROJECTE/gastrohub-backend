@@ -53,15 +53,27 @@ export const updateLicense = async (
 ): Promise<any> => {
   const { id } = req.params;
   const { body } = req;
-  const { user } = req.body;
+  const { user, paymentIntentId } = req.body;
   const { id_user } = user;
 
   try {
-    const license = await License.findByPk(id);
+    const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);
+
+    if (paymentIntent.status !== "succeeded") {
+      res.sendStatus(419);
+      return;
+    }
+    const license: any = await License.findByPk(id);
     if (!license) {
       return res.sendStatus(404);
     } else {
-      await license.update(body);
+      await license.update({
+        end_date: new Date(
+          new Date(license.end_date).setMonth(
+            new Date(license.end_date).getMonth() + 1
+          )
+        ),
+      });
 
       res.json(license);
     }
