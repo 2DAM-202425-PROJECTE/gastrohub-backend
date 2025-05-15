@@ -223,25 +223,87 @@ export const getAnalytics = async (
     // ----------------- Día -----------------
     const dayAnalytics: { [key: string]: number } = {};
     const dayEarnings: { [key: string]: number } = {};
+    const dayCashEarnings: { [key: string]: number } = {};
+    const dayCardEarnings: { [key: string]: number } = {};
+
     for (let i = 0; i < 24; i++) {
       const start = new Date();
       start.setHours(i, 0, 0, 0);
       const end = new Date();
       end.setHours(i + 1, 0, 0, 0);
 
-      const orders = lastOrders.filter((order: any) => {
+      const orders: any = lastOrders.filter((order: any) => {
         const orderDate = new Date(order.date);
         return (
           orderDate >= start && orderDate < end && orderDate >= past24Hours
         );
       });
 
+      let totalEarnings = 0;
+      let cardEarnings = 0;
+      let cashEarnings = 0;
+
+      for (const order of orders) {
+        const orderProducts: any = await OrderProduct.findAll({
+          where: {
+            id_order: order.id_order,
+            payed: true,
+          },
+        });
+
+        // Contar cantidad por id_product
+        const productCounts: { [id: number]: number } = {};
+
+        for (const op of orderProducts) {
+          const id = op.id_product;
+          productCounts[id] = (productCounts[id] || 0) + 1;
+        }
+
+        // Obtener productos únicos para este pedido
+        const productIds = Object.keys(productCounts).map(Number);
+        const products: any = await Product.findAll({
+          where: {
+            id_product: productIds,
+          },
+        });
+
+        // Mapear precios
+        const priceMap: { [id: number]: number } = {};
+        for (const product of products) {
+          priceMap[product.id_product] = product.price || 0;
+        }
+
+        // Calcular ganancias separadas
+        for (const op of orderProducts) {
+          const id = op.id_product;
+          const price = priceMap[id] || 0;
+
+          totalEarnings += price;
+
+          if (op.payed_type === 1) {
+            cashEarnings += price;
+          } else if (op.payed_type === 2) {
+            cardEarnings += price;
+          }
+        }
+      }
+
       dayAnalytics[`${i}:00`] = orders.length;
+      dayEarnings[`${i}:00`] = totalEarnings;
+      dayCashEarnings[`${i}:00`] = cashEarnings;
+      dayCardEarnings[`${i}:00`] = cardEarnings;
     }
+
     analytics["day"] = dayAnalytics;
+    earnings["day"] = dayEarnings;
+    earnings["dayCash"] = dayCashEarnings;
+    earnings["dayCard"] = dayCardEarnings;
 
     // ----------------- Semana -----------------
     const weekAnalytics: { [key: string]: number } = {};
+    const weekEarnings: { [key: string]: number } = {};
+    const weekCashEarnings: { [key: string]: number } = {};
+    const weekCardEarnings: { [key: string]: number } = {};
     for (let i = 0; i < 7; i++) {
       const start = new Date();
       start.setDate(now.getDate() - i);
@@ -250,18 +312,77 @@ export const getAnalytics = async (
       end.setDate(now.getDate() - i + 1);
       end.setHours(0, 0, 0, 0);
 
-      const count = lastOrders.filter((order: any) => {
+      const orders: any = lastOrders.filter((order: any) => {
         const orderDate = new Date(order.date);
         return orderDate >= start && orderDate < end && orderDate >= pastWeek;
-      }).length;
+      });
 
       const dayName = start.toLocaleString("en-US", { weekday: "short" }); // Día de la semana en abreviatura (Lun, Mar, etc.)
-      weekAnalytics[dayName] = count;
+
+      let totalEarnings = 0;
+      let cardEarnings = 0;
+      let cashEarnings = 0;
+
+      for (const order of orders) {
+        const orderProducts: any = await OrderProduct.findAll({
+          where: {
+            id_order: order.id_order,
+            payed: true,
+          },
+        });
+
+        // Contar cantidad por id_product
+        const productCounts: { [id: number]: number } = {};
+
+        for (const op of orderProducts) {
+          const id = op.id_product;
+          productCounts[id] = (productCounts[id] || 0) + 1;
+        }
+
+        // Obtener productos únicos para este pedido
+        const productIds = Object.keys(productCounts).map(Number);
+        const products: any = await Product.findAll({
+          where: {
+            id_product: productIds,
+          },
+        });
+
+        // Mapear precios
+        const priceMap: { [id: number]: number } = {};
+        for (const product of products) {
+          priceMap[product.id_product] = product.price || 0;
+        }
+
+        // Calcular ganancias
+        // Calcular ganancias separadas
+        for (const op of orderProducts) {
+          const id = op.id_product;
+          const price = priceMap[id] || 0;
+
+          totalEarnings += price;
+
+          if (op.payed_type === 1) {
+            cashEarnings += price;
+          } else if (op.payed_type === 2) {
+            cardEarnings += price;
+          }
+        }
+      }
+      weekAnalytics[dayName] = orders.length;
+      weekEarnings[dayName] = totalEarnings;
+      weekCashEarnings[dayName] = cashEarnings;
+      weekCardEarnings[dayName] = cardEarnings;
     }
     analytics["week"] = weekAnalytics;
+    earnings["week"] = weekEarnings;
+    earnings["weekCash"] = weekCashEarnings;
+    earnings["weekCard"] = weekCardEarnings;
 
     // ----------------- Mes -----------------
     const monthAnalytics: { [key: string]: number } = {};
+    const monthEarnings: { [key: string]: number } = {};
+    const monthCashEarnings: { [key: string]: number } = {};
+    const monthCardEarnings: { [key: string]: number } = {};
 
     // Obtenemos cuántos días tiene el mes actual
     const totalDaysInMonth = new Date(
@@ -279,33 +400,146 @@ export const getAnalytics = async (
         Math.min((i + 1) * 7 + 1, totalDaysInMonth + 1)
       );
 
-      const count = lastOrders.filter((order: any) => {
+      const orders: any = lastOrders.filter((order: any) => {
         const orderDate = new Date(order.date);
         return orderDate >= start && orderDate < end && orderDate >= pastMonth;
-      }).length;
+      });
 
-      monthAnalytics[`Week ${i + 1}`] = count;
+      let totalEarnings = 0;
+      let cardEarnings = 0;
+      let cashEarnings = 0;
+
+      for (const order of orders) {
+        const orderProducts: any = await OrderProduct.findAll({
+          where: {
+            id_order: order.id_order,
+            payed: true,
+          },
+        });
+
+        // Contar cantidad por id_product
+        const productCounts: { [id: number]: number } = {};
+
+        for (const op of orderProducts) {
+          const id = op.id_product;
+          productCounts[id] = (productCounts[id] || 0) + 1;
+        }
+
+        // Obtener productos únicos para este pedido
+        const productIds = Object.keys(productCounts).map(Number);
+        const products: any = await Product.findAll({
+          where: {
+            id_product: productIds,
+          },
+        });
+
+        // Mapear precios
+        const priceMap: { [id: number]: number } = {};
+        for (const product of products) {
+          priceMap[product.id_product] = product.price || 0;
+        }
+
+        // Calcular ganancias separadas
+        for (const op of orderProducts) {
+          const id = op.id_product;
+          const price = priceMap[id] || 0;
+
+          totalEarnings += price;
+
+          if (op.payed_type === 1) {
+            cashEarnings += price;
+          } else if (op.payed_type === 2) {
+            cardEarnings += price;
+          }
+        }
+      }
+
+      monthAnalytics[`Week ${i + 1}`] = orders.length;
+      monthEarnings[`Week ${i + 1}`] = totalEarnings;
+      monthCashEarnings[`Week ${i + 1}`] = cashEarnings;
+      monthCardEarnings[`Week ${i + 1}`] = cardEarnings;
     }
 
     analytics["month"] = monthAnalytics;
+    earnings["month"] = monthEarnings;
+    earnings["monthCash"] = monthCashEarnings;
+    earnings["monthCard"] = monthCardEarnings;
 
     // ----------------- Año -----------------
     const yearAnalytics: { [key: string]: number } = {};
+    const yearEarnings: { [key: string]: number } = {};
+    const yearCashEarnings: { [key: string]: number } = {};
+    const yearCardEarnings: { [key: string]: number } = {};
     for (let i = 0; i < 12; i++) {
       const start = new Date(now.getFullYear(), i, 1);
       const end = new Date(now.getFullYear(), i + 1, 1);
 
-      const count = lastOrders.filter((order: any) => {
+      const orders: any = lastOrders.filter((order: any) => {
         const orderDate = new Date(order.date);
         return orderDate >= start && orderDate < end && orderDate >= pastYear;
-      }).length;
+      });
+
+      let totalEarnings = 0;
+      let cardEarnings = 0;
+      let cashEarnings = 0;
+
+      for (const order of orders) {
+        const orderProducts: any = await OrderProduct.findAll({
+          where: {
+            id_order: order.id_order,
+            payed: true,
+          },
+        });
+
+        // Contar cantidad por id_product
+        const productCounts: { [id: number]: number } = {};
+
+        for (const op of orderProducts) {
+          const id = op.id_product;
+          productCounts[id] = (productCounts[id] || 0) + 1;
+        }
+
+        // Obtener productos únicos para este pedido
+        const productIds = Object.keys(productCounts).map(Number);
+        const products: any = await Product.findAll({
+          where: {
+            id_product: productIds,
+          },
+        });
+
+        // Mapear precios
+        const priceMap: { [id: number]: number } = {};
+        for (const product of products) {
+          priceMap[product.id_product] = product.price || 0;
+        }
+
+        // Calcular ganancias separadas
+        for (const op of orderProducts) {
+          const id = op.id_product;
+          const price = priceMap[id] || 0;
+
+          totalEarnings += price;
+
+          if (op.payed_type === 1) {
+            cashEarnings += price;
+          } else if (op.payed_type === 2) {
+            cardEarnings += price;
+          }
+        }
+      }
 
       const monthName = start.toLocaleString("en-US", { month: "short" }); // Abreviatura del mes (Ene, Feb, Mar...)
-      yearAnalytics[monthName] = count;
+      yearAnalytics[monthName] = orders.length;
+      yearEarnings[monthName] = totalEarnings;
+      yearCashEarnings[monthName] = cashEarnings;
+      yearCardEarnings[monthName] = cardEarnings;
     }
     analytics["year"] = yearAnalytics;
+    earnings["year"] = yearEarnings;
+    earnings["yearCash"] = yearCashEarnings;
+    earnings["yearCard"] = yearCardEarnings;
 
-    res.json({ orders: analytics });
+    res.json({ orders: analytics, earnings: earnings });
   } catch (error) {
     console.log(error);
     res.status(500).json({

@@ -95,12 +95,10 @@ export const setPayedByList = async (
   res: Response
 ): Promise<any> => {
   const { body } = req;
-  const { user, list_ids, mode } = req.body;
+  const { user, list_ids, mode, bool } = req.body;
   const { id_user } = user;
 
   try {
-    console.log("list_ids", list_ids);
-    console.log("mode", mode);
     const orderProducts = await OrderProduct.findAll({
       where: {
         id: list_ids,
@@ -112,7 +110,7 @@ export const setPayedByList = async (
       await Promise.all(
         orderProducts.map(async (orderProduct: any) => {
           await orderProduct.update({
-            payed: true,
+            payed: bool,
             payed_type: mode,
           });
         })
