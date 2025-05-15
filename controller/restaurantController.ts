@@ -116,6 +116,8 @@ export const getWebMenu = async (req: Request, res: Response): Promise<any> => {
       name: restaurant.name,
       address: restaurant.address,
       logo: restaurant.logo,
+phone: restaurant.phone,
+banner: restaurant.banner
     };
 
     const products = await Product.findAll({
