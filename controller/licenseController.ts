@@ -53,7 +53,7 @@ export const updateLicense = async (
 ): Promise<any> => {
   const { id } = req.params;
   const { body } = req;
-  const { user, paymentIntentId } = req.body;
+  const { user, paymentIntentId, type } = req.body;
   const { id_user } = user;
 
   try {
@@ -67,13 +67,22 @@ export const updateLicense = async (
     if (!license) {
       return res.sendStatus(404);
     } else {
-      await license.update({
-        end_date: new Date(
-          new Date(license.end_date).setMonth(
-            new Date(license.end_date).getMonth() + 1
-          )
-        ),
-      });
+      if (type != null) {
+        await license.update({
+          license_type: type,
+          // pon que la fecha de fin sea dentro de un mes
+          start_date: new Date(),
+          end_date: new Date(new Date().setMonth(new Date().getMonth() + 1)),
+        });
+      } else {
+        await license.update({
+          end_date: new Date(
+            new Date(license.end_date).setMonth(
+              new Date(license.end_date).getMonth() + 1
+            )
+          ),
+        });
+      }
 
       res.json(license);
     }

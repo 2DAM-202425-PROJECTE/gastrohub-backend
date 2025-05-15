@@ -18,8 +18,8 @@ const setDefaultData = async () => {
     License.create({
       license_type: 2,
       details: "This is a test license",
-      start_date: new Date().setFullYear(new Date().getFullYear() - 2),
-      end_date: new Date().setFullYear(new Date().getFullYear() + 1),
+      start_date: new Date().setFullYear(new Date().getFullYear() - 4),
+      end_date: new Date().setFullYear(new Date().getFullYear() - 1),
     }).then((license) => {
       Restaurant.create({
         name: "Kebab La Rapita",

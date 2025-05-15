@@ -30,8 +30,13 @@ export const restaurantLicense = async (
     const currentDate = new Date();
     const expirationDate = new Date(license.end_date);
     if (currentDate > expirationDate) {
-      res.sendStatus(409);
-      return;
+      if (user.admin) {
+        res.sendStatus(420);
+        return;
+      } else {
+        res.sendStatus(409);
+        return;
+      }
     }
     next();
   } catch (err) {
