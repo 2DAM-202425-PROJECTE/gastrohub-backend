@@ -145,6 +145,9 @@ export const loginUserByToken = async (
     if (!user) {
       res.sendStatus(414);
     } else {
+      if(user.id_restaurant == null){
+        res.sendStatus(418);
+      }
       res.json({ loggedUser: true });
     }
   } catch (error) {
