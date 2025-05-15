@@ -1,11 +1,14 @@
 import { Sequelize } from "sequelize";
+import dotenv from "dotenv";
+dotenv.config();
 
-const db = new Sequelize(
-  "postgresql://postgres:icoYmQxejrRAKwGKzqPfHksEulcYNspA@gondola.proxy.rlwy.net:57733/railway",
-  {
-    dialect: "postgres",
-    logging: false,
-  }
-);
+if (!process.env.DB_URL) {
+  throw new Error("DB_URL environment variable is not defined.");
+}
+
+const db = new Sequelize(process.env.DB_URL, {
+  dialect: "postgres",
+  logging: false,
+});
 
 export default db;
