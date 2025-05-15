@@ -1,9 +1,11 @@
 import { Sequelize } from "sequelize";
 
-const db = new Sequelize("gastrohub", "postgres", "gastrohubadmin",{
-    host: '127.0.0.1',
-    dialect: 'postgres',
-    logging: false 
-});
+const db = new Sequelize(
+  "postgresql://postgres:icoYmQxejrRAKwGKzqPfHksEulcYNspA@gondola.proxy.rlwy.net:57733/railway",
+  {
+    dialect: "postgres",
+    logging: false,
+  }
+);
 
 export default db;
