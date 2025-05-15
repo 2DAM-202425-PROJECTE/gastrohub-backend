@@ -1,6 +1,7 @@
 import { DataTypes } from "sequelize";
 import db from "../database/connection";
 import Restaurant from "./restaurant";
+import UserToken from "./userTokens";
 
 const User = db.define(
   "User",
@@ -66,7 +67,14 @@ const User = db.define(
       type: DataTypes.STRING,
       allowNull: false,
     },
-  
+    id_token: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      references: {
+        model: UserToken,
+        key: "id_token",
+      },
+    },
   },
   {
     timestamps: false,

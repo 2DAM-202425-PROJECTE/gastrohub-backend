@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import User from "../models/user";
-import { generateToken } from "../services/token_service";
+import { generateAndSaveToken, generateToken } from "../services/token_service";
 import Restaurant from "../models/restaurant";
 import License from "../models/license";
 import bcrypt from "bcryptjs";
@@ -114,10 +114,12 @@ export const loginUser = async (req: Request, res: Response): Promise<any> => {
         return res.sendStatus(414); 
       }
 
-      const token = generateToken({
+      const token = await generateAndSaveToken({
         id_user: user.id_user,
         username: user.username,
       });
+
+      console.log(token);
 
       res.json({ token });
     }
