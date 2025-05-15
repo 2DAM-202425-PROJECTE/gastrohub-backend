@@ -13,10 +13,19 @@ import orderRoutes from "../routes/orderRoutes";
 import deliveryOrdersRoutes from "../routes/deliveryOrderRoutes";
 import orderProductRoutes from "../routes/orderProductRoutes";
 import setDefaultData from "../database/defaultData";
+import admin from "firebase-admin";
+import path from "path";
 
 import db from "../database/connection";
 import { decrypt, encrypt } from "../services/encrypt_service";
-import { decryptRequestMiddleware, encryptResponseMiddleware } from "../middlewares/encryptMiddleware";
+import {
+  decryptRequestMiddleware,
+  encryptResponseMiddleware,
+} from "../middlewares/encryptMiddleware";
+
+
+import '../services/firebase_service';
+
 
 class Server {
   private app: Application;

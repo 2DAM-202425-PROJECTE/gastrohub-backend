@@ -55,6 +55,7 @@ export const getUser = async (req: Request, res: Response) => {
         tag: user.tag,
         name: user.name,
         id_restaurant: user.id_restaurant,
+        notificationToken: user.notificationToken,
       };
       res.json(toSend);
     } else {
@@ -111,7 +112,7 @@ export const loginUser = async (req: Request, res: Response): Promise<any> => {
       const isMatch = await bcrypt.compare(password, user.password);
 
       if (!isMatch) {
-        return res.sendStatus(414); 
+        return res.sendStatus(414);
       }
 
       const token = await generateAndSaveToken({
@@ -270,7 +271,7 @@ export const updateUser = async (req: Request, res: Response): Promise<any> => {
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(body.password, salt);
         body.password = hashedPassword;
-      } else{
+      } else {
         body.password = user.password;
       }
       if (body.pin == null && user.pin != null) {
@@ -500,6 +501,36 @@ export const updateWorker = async (
       await user.update({
         tag,
         admin,
+      });
+
+      res.json({ done: true });
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      msg: "Talk to the administrator",
+    });
+  }
+};
+
+export const notificationsUpdate = async (
+  req: Request,
+  res: Response
+): Promise<any> => {
+  const { user } = req.body;
+  const { id_user } = user;
+  const { body } = req;
+
+  try {
+    const user: any = await User.findByPk(id_user);
+    if (!user) {
+      res.sendStatus(404);
+    } else {
+      const notificationToken = body.notificationToken;
+
+      await user.update({
+        notificationToken,
+        
       });
 
       res.json({ done: true });

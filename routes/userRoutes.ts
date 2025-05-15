@@ -15,6 +15,7 @@ import {
   updateWorker,
   resetPin,
   createWorker,
+  notificationsUpdate,
 } from "../controller/userController";
 import { authenticateToken } from "../middlewares/authenticationToken";
 import { restaurantLicense } from "../middlewares/restaurantLicense";
@@ -79,5 +80,8 @@ router.post(
   adminCheck,
   createWorker
 );
+
+router.put("/notificationsUpdate", authenticateToken, notificationsUpdate);
+
 
 export default router;

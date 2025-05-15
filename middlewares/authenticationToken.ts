@@ -23,7 +23,7 @@ export const authenticateToken = async (
     const userToken: any = await UserToken.findByPk(userModel.id_token);
 
     if (!userModel || !userModel.id_token) {
-      res.sendStatus(402);
+      res.sendStatus(403);
       return;
     }
 

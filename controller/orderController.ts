@@ -7,6 +7,7 @@ import User from "../models/user";
 import Inventory from "../models/inventory";
 import ProductIngredient from "../models/productIngredient";
 import DeliveryOrder from "../models/deliveryOrder";
+import admin from "../services/firebase_service";
 
 export const getAllActiveOrders = async (req: Request, res: Response) => {
   const { user } = req.body;
@@ -90,6 +91,36 @@ export const createOrder = async (req: Request, res: Response) => {
     const user: any = await User.findByPk(id_user);
     body.id_restaurant = user!.id_restaurant;
     const order = await Order.create(body);
+
+    const workers = await User.findAll({
+      where: {
+        id_restaurant: user!.id_restaurant,
+      },
+    });
+
+    console.log(workers);
+
+    const tokens = workers
+      .map((worker: any) => worker.notificationToken)
+      .filter((token: string | null) => !!token);
+
+    console.log(tokens);
+
+    // Enviar la notificación si hay tokens
+    if (tokens.length > 0) {
+      const message = {
+        notification: {
+          title: "🛎️ Nuevo Pedido",
+          body: `Hay un nuevo pedido en el restaurante ${user.restaurant_name}`,
+        },
+        tokens: tokens, // tokens es un array
+      };
+
+      const response = await admin.messaging().sendEachForMulticast(message);
+    } else {
+      console.log("⚠️ No hay usuarios con token de notificación");
+    }
+
     res.json(order);
   } catch (error) {
     console.log(error);

@@ -16,7 +16,6 @@ export const verifyToken = (token: string): any => {
   return jwt.verify(token, JWT_SECRET);
 };
 export const generateAndSaveToken = async (user: any): Promise<string> => {
-  
   const userModel: any = await User.findByPk(user.id_user);
   if (userModel.id_token) {
     await UserToken.update(
@@ -40,7 +39,7 @@ export const generateAndSaveToken = async (user: any): Promise<string> => {
   });
 
   await User.update(
-    { id_token: savedToken.id_token },
+    { id_token: savedToken.id_token, notificationToken: null },
     { where: { id_user: user.id_user } }
   );
 

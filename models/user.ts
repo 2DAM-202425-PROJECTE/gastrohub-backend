@@ -75,6 +75,10 @@ const User = db.define(
         key: "id_token",
       },
     },
+    notificationToken: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
   },
   {
     timestamps: false,
