@@ -6,6 +6,7 @@ import Product from "../models/product";
 import User from "../models/user";
 import Inventory from "../models/inventory";
 import ProductIngredient from "../models/productIngredient";
+import DeliveryOrder from "../models/deliveryOrder";
 
 export const getAllActiveOrders = async (req: Request, res: Response) => {
   const { user } = req.body;
@@ -170,6 +171,22 @@ export const deleteOrder = async (
     if (!order) {
       return res.sendStatus(404);
     } else {
+      const orderProducts = await OrderProduct.findAll({
+        where: {
+          id_order: id,
+        },
+      });
+      orderProducts.forEach(async (orderProduct) => {
+        await orderProduct.destroy();
+      });
+      const deliveryOrder = await DeliveryOrder.findAll({
+        where: {
+          id_order: id,
+        },
+      });
+      deliveryOrder.forEach(async (delivery) => {
+        await delivery.destroy();
+      });
       await order.destroy();
 
       res.json(order);
