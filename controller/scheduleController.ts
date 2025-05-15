@@ -2,6 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import Schedule from "../models/schedule";
 import { getUsers } from "./userController";
 import User from "../models/user";
+import admin from "../services/firebase_service";
 
 export const getUserSchedules = async (req: Request, res: Response) => {
   const { id } = req.params;
@@ -31,6 +32,18 @@ export const createSchedule = async (req: Request, res: Response) => {
 
   try {
     const schedule = await Schedule.create(body);
+    const user: any = await User.findByPk(body.id_user);
+    if (user.notificationToken != null) {
+      const message = {
+        notification: {
+          title: "🛎️ Nuevo horario",
+          body: `Se te ha asignado nuevo horario!`,
+        },
+        tokens: [user.notificationToken],
+      };
+
+      const response = await admin.messaging().sendEachForMulticast(message);
+    }
     res.json(schedule);
   } catch (error) {
     console.log(error);
@@ -145,6 +158,28 @@ export const createMultipleSchedules = async (
     }
 
     const created = await Schedule.bulkCreate(schedules);
+
+    const workers = await User.findAll({
+      where: {
+        id_user: selected_users,
+      },
+    });
+    const tokens = workers
+      .map((worker: any) => worker.notificationToken)
+      .filter((token: string | null) => !!token);
+
+    // Enviar la notificación si hay tokens
+    if (tokens.length > 0) {
+      const message = {
+        notification: {
+          title: "🛎️ Nuevo horario",
+          body: `Se te ha asignado nuevo horario!`,
+        },
+        tokens: tokens, // tokens es un array
+      };
+
+      const response = await admin.messaging().sendEachForMulticast(message);
+    }
     res.status(200).json({
       msg: "Schedules created successfully",
       count: created.length,

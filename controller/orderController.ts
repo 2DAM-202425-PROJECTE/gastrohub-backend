@@ -98,13 +98,9 @@ export const createOrder = async (req: Request, res: Response) => {
       },
     });
 
-    console.log(workers);
-
     const tokens = workers
       .map((worker: any) => worker.notificationToken)
       .filter((token: string | null) => !!token);
-
-    console.log(tokens);
 
     // Enviar la notificación si hay tokens
     if (tokens.length > 0) {
@@ -117,8 +113,6 @@ export const createOrder = async (req: Request, res: Response) => {
       };
 
       const response = await admin.messaging().sendEachForMulticast(message);
-    } else {
-      console.log("⚠️ No hay usuarios con token de notificación");
     }
 
     res.json(order);
