@@ -119,8 +119,6 @@ export const loginUser = async (req: Request, res: Response): Promise<any> => {
         username: user.username,
       });
 
-      console.log(token);
-
       res.json({ token });
     }
   } catch (error) {

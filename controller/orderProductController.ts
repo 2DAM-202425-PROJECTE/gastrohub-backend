@@ -1,6 +1,9 @@
 import { NextFunction, Request, Response } from "express";
 import OrderProduct from "../models/orderProduct";
 import Order from "../models/order";
+import Product from "../models/product";
+import ProductIngredient from "../models/productIngredient";
+import Inventory from "../models/inventory";
 
 export const createOrderProduct = async (req: Request, res: Response) => {
   const { body } = req;
@@ -28,17 +31,48 @@ export const updateOrderProduct = async (
   const { id_user } = user;
 
   try {
-    const product = await OrderProduct.findOne({
+    const orderProduct: any = await OrderProduct.findOne({
       where: {
         id: id,
       },
     });
-    if (!product) {
+    if (!orderProduct) {
       return res.sendStatus(404);
     } else {
-      await product.update(body);
+      if (body.state == 2) {
+        const productIngredients = await ProductIngredient.findAll({
+          where: {
+            id_product: orderProduct.id_product,
+          },
+        });
 
-      res.json(product);
+        const ingredients = productIngredients.map((productIngredient: any) => {
+          return productIngredient.id_ingredient;
+        });
+        const inventories = await Inventory.findAll({
+          where: {
+            id_ingredient: ingredients,
+          },
+        });
+
+        await Promise.all(
+          inventories.map(async (inventory: any) => {
+            await Inventory.update(
+              {
+                quantity: inventory.quantity - 1,
+              },
+              {
+                where: {
+                  id_ingredient: inventory.id_ingredient,
+                },
+              }
+            );
+          })
+        );
+      }
+      await orderProduct.update(body);
+
+      res.json(orderProduct);
     }
   } catch (error) {
     console.log(error);
