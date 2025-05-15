@@ -5,6 +5,11 @@ import License from "../models/license";
 import Product from "../models/product";
 import ProductIngredient from "../models/productIngredient";
 import Inventory from "../models/inventory";
+import Stripe from "stripe";
+
+const stripe = new Stripe(
+  "sk_test_51RP6ws4NmBYejv2sfGfN4d1bLRLNBb7dHKGcv3k7VhFKXqfpM1SzaZCRBPKgNeDlVPw2uOjM3a0mm3FnkwgUt5XR00I8YgTIpa"
+);
 
 export const getRestaurant = async (req: Request, res: Response) => {
   const { user } = req.body;
@@ -27,9 +32,15 @@ export const getRestaurant = async (req: Request, res: Response) => {
 };
 
 export const createRestaurant = async (req: Request, res: Response) => {
-  const { restaurant, license, id_user } = req.body;
+  const { restaurant, license, id_user, paymentIntentId } = req.body;
 
   try {
+    const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);
+
+    if (paymentIntent.status !== "succeeded") {
+      res.sendStatus(419);
+      return;
+    }
     const newLicense: any = await License.create(license);
     restaurant.id_license = newLicense.id_license;
     const newRestaurant: any = await Restaurant.create(restaurant);
@@ -37,7 +48,6 @@ export const createRestaurant = async (req: Request, res: Response) => {
     if (user) {
       if (user.id_restaurant != null) {
         res.sendStatus(417);
-        return;
       } else {
         await user.update({
           id_restaurant: newRestaurant.id_restaurant,
@@ -116,8 +126,8 @@ export const getWebMenu = async (req: Request, res: Response): Promise<any> => {
       name: restaurant.name,
       address: restaurant.address,
       logo: restaurant.logo,
-phone: restaurant.phone,
-banner: restaurant.banner
+      phone: restaurant.phone,
+      banner: restaurant.banner,
     };
 
     const products = await Product.findAll({

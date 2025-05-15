@@ -5,6 +5,7 @@ import {
   getLicense,
   updateLicense,
   licenseIsPremium,
+  createPaymentIntent,
 } from "../controller/licenseController";
 import { authenticateToken } from "../middlewares/authenticationToken";
 import { restaurantLicense } from "../middlewares/restaurantLicense";
@@ -21,5 +22,7 @@ router.get(
   restaurantLicense,
   licenseIsPremium
 );
+
+router.put("/createPaymentIntent", createPaymentIntent);
 
 export default router;
