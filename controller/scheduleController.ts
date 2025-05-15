@@ -34,10 +34,22 @@ export const createSchedule = async (req: Request, res: Response) => {
     const schedule = await Schedule.create(body);
     const user: any = await User.findByPk(body.id_user);
     if (user.notificationToken != null) {
+      let title = "";
+      let body = "";
+      if (user.language == "CA") {
+        title = "🛎️ Nou horari";
+        body = `Se t'ha assignat un nou horari!`;
+      } else if (user.language == "ES") {
+        title = "🛎️ Nuevo horario";
+        body = `Se te ha asignado nuevo horario!`;
+      } else {
+        title = "🛎️ New schedule";
+        body = `You have been assigned a new schedule!`;
+      }
       const message = {
         notification: {
-          title: "🛎️ Nuevo horario",
-          body: `Se te ha asignado nuevo horario!`,
+          title: title,
+          body: body,
         },
         tokens: [user.notificationToken],
       };
@@ -164,18 +176,46 @@ export const createMultipleSchedules = async (
         id_user: selected_users,
       },
     });
-    const tokens = workers
-      .map((worker: any) => worker.notificationToken)
-      .filter((token: string | null) => !!token);
 
-    // Enviar la notificación si hay tokens
-    if (tokens.length > 0) {
+    // Agrupar tokens por idioma
+    const tokensByLanguage: Record<string, string[]> = {};
+
+    workers.forEach((worker: any) => {
+      if (worker.notificationToken) {
+        const lang = worker.language || "EN";
+        if (!tokensByLanguage[lang]) {
+          tokensByLanguage[lang] = [];
+        }
+        tokensByLanguage[lang].push(worker.notificationToken);
+      }
+    });
+
+    // Mensajes por idioma
+    const messages: Record<string, { title: string; body: string }> = {
+      CA: {
+        title: "🛎️ Nou horari",
+        body: "Se t'ha assignat un nou horari!",
+      },
+      ES: {
+        title: "🛎️ Nuevo horario",
+        body: "Se te ha asignado nuevo horario!",
+      },
+      EN: {
+        title: "🛎️ New schedule",
+        body: "You have been assigned a new schedule!",
+      },
+    };
+
+    for (const lang in tokensByLanguage) {
+      const tokens = tokensByLanguage[lang];
+      const { title, body } = messages[lang] || messages.EN;
+
       const message = {
         notification: {
-          title: "🛎️ Nuevo horario",
-          body: `Se te ha asignado nuevo horario!`,
+          title,
+          body,
         },
-        tokens: tokens, // tokens es un array
+        tokens,
       };
 
       const response = await admin.messaging().sendEachForMulticast(message);

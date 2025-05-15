@@ -79,6 +79,11 @@ const User = db.define(
       type: DataTypes.STRING,
       allowNull: true,
     },
+    language: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      defaultValue: "EN",
+    },
   },
   {
     timestamps: false,

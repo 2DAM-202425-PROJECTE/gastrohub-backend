@@ -545,3 +545,33 @@ export const notificationsUpdate = async (
     });
   }
 };
+
+
+export const languageUpdate = async (
+  req: Request,
+  res: Response
+): Promise<any> => {
+  const { user } = req.body;
+  const { id_user } = user;
+  const { body } = req;
+
+  try {
+    const user: any = await User.findByPk(id_user);
+    if (!user) {
+      res.sendStatus(404);
+    } else {
+      const language = body.language;
+
+      await user.update({
+        language,
+      });
+
+      res.json({ done: true });
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      msg: "Talk to the administrator",
+    });
+  }
+};

@@ -98,18 +98,46 @@ export const createOrder = async (req: Request, res: Response) => {
       },
     });
 
-    const tokens = workers
-      .map((worker: any) => worker.notificationToken)
-      .filter((token: string | null) => !!token);
+    // Agrupar tokens por idioma
+    const tokensByLanguage: Record<string, string[]> = {};
 
-    // Enviar la notificación si hay tokens
-    if (tokens.length > 0) {
+    workers.forEach((worker: any) => {
+      if (worker.notificationToken) {
+        const lang = worker.language || "EN";
+        if (!tokensByLanguage[lang]) {
+          tokensByLanguage[lang] = [];
+        }
+        tokensByLanguage[lang].push(worker.notificationToken);
+      }
+    });
+
+    // Mensajes traducidos por idioma
+    const messages: Record<string, { title: string; body: string }> = {
+      CA: {
+        title: "🛎️ Nova comanda",
+        body: 'Hi ha una nova comanda al restaurant!',
+      },
+      ES: {
+        title: "🛎️ Nuevo pedido",
+        body: 'Hay un nuevo pedido en el restaurante!',
+      },
+      EN: {
+        title: "🛎️ New order",
+        body: 'There is a new order at the restaurant!',
+      },
+    };
+
+    // Enviar una notificación por grupo de idioma
+    for (const lang in tokensByLanguage) {
+      const tokens = tokensByLanguage[lang];
+      const { title, body } = messages[lang] || messages.EN; // fallback al inglés
+
       const message = {
         notification: {
-          title: "🛎️ Nuevo Pedido",
-          body: `Hay un nuevo pedido en el restaurante ${user.restaurant_name}`,
+          title,
+          body,
         },
-        tokens: tokens, // tokens es un array
+        tokens,
       };
 
       const response = await admin.messaging().sendEachForMulticast(message);
