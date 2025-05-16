@@ -19,17 +19,47 @@ export const restaurantLicense = async (
     }
     const restaurant: any = await Restaurant.findByPk(user.id_restaurant);
     if (!restaurant) {
+      if (!user.admin) {
+        await User.update(
+          { id_restaurant: null, tag: null, pin: null },
+          {
+            where: {
+              id_user: user.id_user,
+            },
+          }
+        );
+      }
+
       res.sendStatus(407);
       return;
     }
     const license: any = await License.findByPk(restaurant.id_license);
     if (!license) {
+      if (!user.admin) {
+        await User.update(
+          { id_restaurant: null, tag: null, pin: null },
+          {
+            where: {
+              id_user: user.id_user,
+            },
+          }
+        );
+      }
       res.sendStatus(408);
       return;
     }
     const currentDate = new Date();
     const expirationDate = new Date(license.end_date);
     if (currentDate > expirationDate) {
+      await User.update(
+        { id_restaurant: null, tag: null, pin: null },
+        {
+          where: {
+            id_restaurant: user.id_restaurant,
+            admin: false,
+          },
+        }
+      );
       if (user.admin) {
         res.sendStatus(420);
         return;

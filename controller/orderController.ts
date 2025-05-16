@@ -115,15 +115,15 @@ export const createOrder = async (req: Request, res: Response) => {
     const messages: Record<string, { title: string; body: string }> = {
       CA: {
         title: "🛎️ Nova comanda",
-        body: 'Hi ha una nova comanda al restaurant!',
+        body: "Hi ha una nova comanda al restaurant!",
       },
       ES: {
         title: "🛎️ Nuevo pedido",
-        body: 'Hay un nuevo pedido en el restaurante!',
+        body: "Hay un nuevo pedido en el restaurante!",
       },
       EN: {
         title: "🛎️ New order",
-        body: 'There is a new order at the restaurant!',
+        body: "There is a new order at the restaurant!",
       },
     };
 
@@ -139,8 +139,9 @@ export const createOrder = async (req: Request, res: Response) => {
         },
         tokens,
       };
-
+      
       const response = await admin.messaging().sendEachForMulticast(message);
+    
     }
 
     res.json(order);

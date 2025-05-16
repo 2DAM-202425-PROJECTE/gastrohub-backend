@@ -145,10 +145,11 @@ export const loginUserByToken = async (
     if (!user) {
       res.sendStatus(414);
     } else {
-      if(user.id_restaurant == null){
-        res.sendStatus(418);
+      if (user.id_restaurant == null) {
+        res.json({ loggedUser: false });
+      } else {
+        res.json({ loggedUser: true });
       }
-      res.json({ loggedUser: true });
     }
   } catch (error) {
     res.status(500).json({
@@ -533,7 +534,6 @@ export const notificationsUpdate = async (
 
       await user.update({
         notificationToken,
-        
       });
 
       res.json({ done: true });
@@ -545,7 +545,6 @@ export const notificationsUpdate = async (
     });
   }
 };
-
 
 export const languageUpdate = async (
   req: Request,
