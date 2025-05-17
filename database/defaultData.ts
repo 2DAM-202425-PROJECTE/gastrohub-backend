@@ -23,7 +23,7 @@ const setDefaultData = async () => {
     }).then((license) => {
       Restaurant.create({
         name: "Kebab La Rapita",
-        address: "Carrer de la Rapita",
+        address: "40.712776, -74.005974",
         capacity: 100,
         id_license: 1,
         phone: 123456789,
