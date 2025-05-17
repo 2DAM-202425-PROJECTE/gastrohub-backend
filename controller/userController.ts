@@ -182,7 +182,7 @@ export const createUser = async (req: Request, res: Response): Promise<any> => {
         ...body,
         password: hashedPassword,
       });
-      const token = generateToken({
+      const token = await generateAndSaveToken({
         id_user: newUser.id_user,
         username: newUser.username,
       });

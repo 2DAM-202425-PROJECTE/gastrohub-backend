@@ -61,7 +61,7 @@ class Server {
       console.log("Database online");
       await db.sync({ force: true });
       console.log("Base de datos conectada y tablas sincronizadas");
-      await setDefaultData();
+      // await setDefaultData();
       console.log("Datos por defecto cargados");
     } catch (error: any) {
       console.log(error);
