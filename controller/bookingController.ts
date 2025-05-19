@@ -26,8 +26,13 @@ export const getBookings = async (req: Request, res: Response) => {
 
 export const createBooking = async (req: Request, res: Response) => {
   const { body } = req;
+  const { user } = req.body;
 
   try {
+    const userDB: any = await User.findByPk(user.id_user);
+
+    body.id_restaurant = userDB!.id_restaurant;
+
     const booking = await Booking.create(body);
     res.json(booking);
   } catch (error) {
